@@ -39,7 +39,7 @@ public:
 	static TYPEDESCRIPTION m_SaveData[];
 
 	float m_iExplode;
-	float borntime;
+	int borntime;
 	float m_flTimeSporeIdle;
 };
 
@@ -108,7 +108,7 @@ void CSporeAmmo :: Spawn( void )
 //=========================================================
 int CSporeAmmo::TakeDamage( entvars_t* pevInflictor, entvars_t* pevAttacker, float flDamage, int bitsDamageType )
 {
-	if (!borntime) // rigth '!borntime'  // blast in anytime 'borntime || !borntime'
+	if (!borntime && pevAttacker) // rigth '!borntime'  // blast in anytime 'borntime || !borntime'
 	{
 		CBaseEntity *attacker = GetClassPtr( (CBaseEntity*)pevAttacker );
 		Vector vecSrc = pev->origin + gpGlobals->v_forward * -32;
@@ -152,6 +152,8 @@ int CSporeAmmo::TakeDamage( entvars_t* pevInflictor, entvars_t* pevAttacker, flo
 		m_flTimeSporeIdle = gpGlobals->time + 1;
 		SetThink (&CSporeAmmo::IdleThink);
 	}
+
+	return 0;
 }
 
 //=========================================================
