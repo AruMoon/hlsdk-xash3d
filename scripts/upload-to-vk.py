@@ -16,11 +16,11 @@ def vk(method,**kwargs):
 
 srv=vk('docs.getMessagesUploadServer', peer_id=peer)
 
-for i in sys.argv[1:]:
+for i in sys.argv[2:]:
 	os.rename(i, i+i[-1])
 	with open(i+i[-1], 'r') as f:
 		br = requests.post(srv['response']['upload_url'],files={'file': f}).json()
 		doc=vk('docs.save',file=br['file'],title=i)['response']['doc']
 		attachs+='doc'+str(doc['owner_id'])+'_'+str(doc['id'])+','
 
-vk('messages.send', peer_id=peer, message='Build finished at '+dt, attachment=attachs,random_id=random.randint(0,2**10))
+vk('messages.send', peer_id=peer, message='Commit message: '+sys.argv[1]+'\nBuild finished at '+dt, attachment=attachs,random_id=random.randint(0,2**10))
