@@ -15,8 +15,10 @@ jobs:
 
     - name: Build
       run: |
-        sudo apt install -y gcc g++ make gcc-multilib g++-multilib gcc-mingw-w64-i686 g++-mingw-w64-i686 mingw-w64-i686-dev binutils-mingw-w64-i686
+        sudo apt install -y gcc g++ make gcc-multilib g++-multilib gcc-mingw-w64-i686 g++-mingw-w64-i686 mingw-w64-i686-dev binutils-mingw-w64-i686 openjdk-8-jdk ant-contib
         git clone --depth 1 https://github.com/FWGS/microndk
+        git clone --depth 1 https://github.com/mittorn/ndk-binaries
+        git clone --depth 1 https://gitlab.com/LostGamer/android-sdk
         cd dlls
         make -j$(nproc --all) -f ../microndk/Microndk.mk
         zip -9 ../server-linux.zip libserver.so
@@ -26,6 +28,12 @@ jobs:
         make -f ../microndk/Microndk.mk clean
         CC="i686-w64-mingw32-gcc" CXX="i686-w64-mingw32-g++" CXX="i686-w64-mingw32-g++" CXX="i686-w64-mingw32-g++" make -j$(nproc --all) -f ../microndk/Microndk.mk
         zip -9 ../server-win32.zip server.dll
+        cd ../dlls/android
+        ln -s ../dlls jni/server
+        PATH=$PATH":../ndk-binaries:" ndk-build -j$(nproc --all)
+        echo "target=android-19" > project.properties
+        ANROID_HOME=../ ant debug
+        cp bin/mod-debug.apk ../gravgun.apk
     - uses: actions/upload-artifact@v2
       with:
         name: server-linux.zip
@@ -38,3 +46,7 @@ jobs:
       with:
         name: server-win32.zip
         path: server-win32.zip
+    - uses: actions/upload-artifact@v2
+      with:
+        name: gravgun.apk
+        path: gravgun.apk
