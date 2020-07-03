@@ -15,7 +15,7 @@ jobs:
 
     - name: Build
       run: |
-        sudo apt install -y gcc make gcc-multilib
+        sudo apt install -y gcc g++ make gcc-multilib g++-multilib
         git clone --depth 1 https://github.com/FWGS/microndk
         cd dlls
         make -f ../microndk/Microndk.mk
