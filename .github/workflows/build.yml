@@ -42,4 +42,4 @@ jobs:
       env:
         VK_TOKEN: ${{ secrets.VK_TOKEN }}
       run: |
-        python3 "$(git log -1 --oneline --pretty=%B)" scripts/upload-to-vk.py gravgun.apk server-linux.xz server-linux-amd64.xz server-win32.zip
+        python3 scripts/upload-to-vk.py "$(git log -1 --oneline --pretty=%B)" gravgun.apk server-linux.xz server-linux-amd64.xz server-win32.zip
