@@ -14,7 +14,7 @@ jobs:
     - uses: actions/checkout@v2
     - name: Build
       run: |
-        sudo apt install -y curl gcc g++ make jq gcc-multilib g++-multilib gcc-mingw-w64-i686 g++-mingw-w64-i686 mingw-w64-i686-dev binutils-mingw-w64-i686 openjdk-8-jdk ant-contrib
+        sudo apt install -y curl gcc g++ make jq gcc-multilib g++-multilib gcc-mingw-w64-i686 g++-mingw-w64-i686 mingw-w64-i686-dev binutils-mingw-w64-i686 openjdk-8-jdk ant-contrib python3-requests
         git clone --depth 1 https://github.com/FWGS/microndk
         git clone --depth 1 https://github.com/mittorn/ndk-binaries
         git clone --depth 1 https://gitlab.com/LostGamer/android-sdk
@@ -38,12 +38,8 @@ jobs:
         cp bin/mod-debug.apk ../gravgun.apk
         cd ../
     - name: Upload files
+      shell: bash
+      env:
+        VK_TOKEN: ${{ secrets.VK_TOKEN }}
       run: |
-        echo -n "gravgun.apk: "
-        curl -s -F "file=@gravgun.apk" https://file.io | jq -r ".link"
-        echo -n "server-linux.xz: "
-        curl -s -F "file=@server-linux.xz" https://file.io | jq -r ".link"
-        echo -n "server-linux-amd64.xz: "
-        curl -s -F "file=@server-linux-amd64.xz" https://file.io | jq -r ".link"
-        echo -n "server-win32.zip: "
-        curl -s -F "file=@server-win32.zip" https://file.io | jq -r ".link"
+        python3 scripts/upload-to-vk.py gravgun.apk server-linux.xz server-linux-amd64.xz server-win32.zip
