@@ -37,9 +37,17 @@ jobs:
         python2 makepak.py gravgun-extras/ assets/extras.apk
         ANDROID_HOME=$(readlink -f ../android-sdk) ant debug
         cp bin/mod-debug.apk ../gravgun-deploy/gravgun.apk
-        cd ../gravgun-deploy
-        git config --global user.name nillerusr
-        git config --global user.email nillerusr@gmail.com
-        git add .
-        git commit -m "build $(date)"
-        git push
+        cd ../
+    - name: Upload files
+      uses: EndBug/add-and-commit@v4
+        with:
+        add: '.'
+        author_name: nillerusr
+        author_email: nillerusr@gmail.com
+        cwd: 'gravgun-deploy'
+        force: true
+        message: 'Upload'
+        ref: 'master'
+        tag: "v1.0.0"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
