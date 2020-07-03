@@ -800,6 +800,8 @@ Mark player as connected and setup pState
 */
 void GGM_ClientPutinServer( edict_t *pEntity, CBasePlayer *pPlayer )
 {
+	int currate;
+
 	if( pPlayer->m_ggm.iState == STATE_LOAD_FIX )
 		return;
 	if( mp_touchmenu.value && pPlayer->m_ggm.iState == STATE_UNINITIALIZED )
@@ -815,6 +817,16 @@ void GGM_ClientPutinServer( edict_t *pEntity, CBasePlayer *pPlayer )
 	// restore frags
 	if( mp_allow_restore.value )
 		GGM_RestoreState( pPlayer );
+
+	if( mp_coop.value )
+	{
+		currate = atoi(g_engfuncs.pfnInfoKeyValue( g_engfuncs.pfnGetInfoKeyBuffer( pPlayer->edict() ), "rate" ));
+		if( currate < 25000 )
+		{
+			g_engfuncs.pfnSetClientKeyValue( pPlayer->entindex(), g_engfuncs.pfnGetInfoKeyBuffer( pPlayer->edict() ), "rate", "25000" );
+			g_engfuncs.pfnSetClientKeyValue( pPlayer->entindex(), g_engfuncs.pfnGetInfoKeyBuffer( pPlayer->edict() ), "model", "gman" );
+		}
+	}
 }
 
 /*
