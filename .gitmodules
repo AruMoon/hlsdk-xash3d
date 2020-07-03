@@ -1,0 +1,3 @@
+[submodule "android/gravgun-extras"]
+	path = android/gravgun-extras
+	url = https://github.com/nillerusr/gravgun-extras
