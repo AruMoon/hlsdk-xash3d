@@ -44,6 +44,7 @@ cvar_t mp_maxdecals = { "mp_maxdecals", "-1", FCVAR_SERVER };
 cvar_t mp_enttools_checkmodels = { "mp_enttools_checkmodels", "0", FCVAR_SERVER };
 cvar_t mp_errormdl = { "mp_errormdl", "0", FCVAR_SERVER };
 cvar_t mp_errormdlpath = { "mp_errormdlpath", "models/error.mdl", FCVAR_SERVER };
+cvar_t mp_allow_restore = { "mp_allow_restore", "0", FCVAR_SERVER };
 
 cvar_t *zombietime = NULL;
 static char gamedir[MAX_PATH];
@@ -812,7 +813,8 @@ void GGM_ClientPutinServer( edict_t *pEntity, CBasePlayer *pPlayer )
 	pPlayer->m_ggm.menu.Clear();
 	pPlayer->m_ggm.pState = GGM_GetState( GGM_GetAuthID(pPlayer), STRING(pEntity->v.netname) );
 	// restore frags
-	GGM_RestoreState( pPlayer );
+	if( mp_allow_restore.value )
+		GGM_RestoreState( pPlayer );
 }
 
 /*
@@ -1623,8 +1625,10 @@ bool GGM_RestorePosition( CBasePlayer *pPlayer, struct GGMPosition *pos )
 			fOriginSet = true;
 		}
 	}
+
 	if( mp_coop.value && !fOriginSet )
 	{
+		ALERT(at_console, "COOP set player def pos\n");
 		if( !COOP_SetDefaultSpawnPosition( pPlayer ) )
 			g_pGameRules->GetPlayerSpawnSpot( pPlayer );
 		if( pPlayer->m_ggm.iState == STATE_POINT_SELECT )
@@ -1637,6 +1641,7 @@ bool GGM_RestorePosition( CBasePlayer *pPlayer, struct GGMPosition *pos )
 		pPlayer->pev->flags |= FL_DUCKING;
 		UTIL_SetSize( pPlayer->pev, VEC_DUCK_HULL_MIN, VEC_DUCK_HULL_MAX );
 	}
+
 	pPlayer->pev->angles = pos->vecAngles;
 	pPlayer->pev->fixangle = TRUE;
 	return true;
@@ -1676,7 +1681,6 @@ bool GGM_RestoreState( CBasePlayer *pPlayer )
 	if( pState->t.flHealth < 1 )
 		return false;
 
-
 	if( pPlayer->m_ggm.iState != STATE_SPAWNED )
 		return false;
 
@@ -1685,7 +1689,6 @@ bool GGM_RestoreState( CBasePlayer *pPlayer )
 
 	if( !GGM_RestorePosition( pPlayer, &pState->t.pos ) )
 		return false;
-
 
 	pPlayer->RemoveAllItems( FALSE );
 
@@ -3135,6 +3138,7 @@ void GGM_RegisterCVars( void )
 	CVAR_REGISTER( &mp_unduck );
 	CVAR_REGISTER( &mp_skipdefaults );
 	CVAR_REGISTER( &mp_spectator );
+	CVAR_REGISTER( &mp_allow_restore );
 
 	g_engfuncs.pfnAddServerCommand( "ent_rungc", Ent_RunGC_f );
 	g_engfuncs.pfnAddServerCommand( "mp_lightstyle", GGM_LightStyle_f );
