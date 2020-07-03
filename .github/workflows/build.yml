@@ -37,19 +37,19 @@ jobs:
         python2 makepak.py gravgun-extras/ assets/extras.apk
         ANDROID_HOME=$(readlink -f ../android-sdk) ant debug
         cp bin/mod-debug.apk ../gravgun.apk
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v1
       with:
         name: server-linux.zip
         path: server-linux.zip
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v1
       with:
         name: server-linux-amd64.zip
         path: server-linux-amd64.zip
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v1
       with:
         name: server-win32.zip
         path: server-win32.zip
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v1
       with:
         name: gravgun.apk
         path: gravgun.apk
