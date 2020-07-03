@@ -1,0 +1,26 @@
+name: Build server library
+
+on:
+  push:
+    branches: [ coop ]
+  pull_request:
+    branches: [ coop ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Build
+      run: |
+        sudo apt install -y gcc make gcc-multilib
+        git clone --depth 1 https://github.com/FWGS/microndk
+        cd dlls
+        make -f ../microndk/Microndk.mk
+        zip -9 ../server-linux.zip libserver.so
+    - uses: actions/upload-artifact@v2
+      with:
+        name: server-linux.zip
+        path: server-linux.zip
