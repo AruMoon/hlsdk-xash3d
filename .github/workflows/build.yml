@@ -12,7 +12,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-
     - name: Build
       run: |
         sudo apt install -y gcc g++ make gcc-multilib g++-multilib gcc-mingw-w64-i686 g++-mingw-w64-i686 mingw-w64-i686-dev binutils-mingw-w64-i686 openjdk-8-jdk ant-contrib
@@ -20,15 +19,16 @@ jobs:
         git clone --depth 1 https://github.com/mittorn/ndk-binaries
         git clone --depth 1 https://gitlab.com/LostGamer/android-sdk
         git submodule init && git submodule update
+	git clone --depth 1 https://github.com/nillerusr/gravgun-deploy
         cd dlls
         make -j$(nproc --all) -f ../microndk/Microndk.mk
-        zip -9 ../server-linux.zip libserver.so
+        zip -9 ../gravgun-deploy/server-linux.zip libserver.so
         make -f ../microndk/Microndk.mk clean
         make 64BIT=1 -j$(nproc --all) -f ../microndk/Microndk.mk
-        zip -9 ../server-linux-amd64.zip libserver.so
+        zip -9 ../gravgun-deploy/server-linux-amd64.zip libserver.so
         make -f ../microndk/Microndk.mk clean
         CC="i686-w64-mingw32-gcc" CXX="i686-w64-mingw32-g++" CXX="i686-w64-mingw32-g++" CXX="i686-w64-mingw32-g++" make -j$(nproc --all) -f ../microndk/Microndk.mk
-        zip -9 ../server-win32.zip server.dll
+        zip -9 ../gravgun-deploy/server-win32.zip server.dll
         cd ../android
         ln -s $(readlink -f ../dlls) jni/server
         PATH=$PATH:"$(readlink -f ../ndk-binaries):" ndk-build -j$(nproc --all)
@@ -36,20 +36,10 @@ jobs:
         mkdir assets
         python2 makepak.py gravgun-extras/ assets/extras.apk
         ANDROID_HOME=$(readlink -f ../android-sdk) ant debug
-        cp bin/mod-debug.apk ../gravgun.apk
-    - uses: actions/upload-artifact@v1
-      with:
-        name: server-linux.zip
-        path: server-linux.zip
-    - uses: actions/upload-artifact@v1
-      with:
-        name: server-linux-amd64.zip
-        path: server-linux-amd64.zip
-    - uses: actions/upload-artifact@v1
-      with:
-        name: server-win32.zip
-        path: server-win32.zip
-    - uses: actions/upload-artifact@v1
-      with:
-        name: gravgun.apk
-        path: gravgun.apk
+        cp bin/mod-debug.apk ../gravgun-deploy/gravgun.apk
+	cd ../gravgun-deploy
+        git config --global user.name nillerusr
+        git config --global user.email nillerusr@gmail.com
+        git add .
+        git commit -m "build $(date)"
+        git push
