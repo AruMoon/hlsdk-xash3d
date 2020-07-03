@@ -31,11 +31,11 @@ jobs:
         zip -9 ../server-win32.zip server.dll
         cd ../android
         ln -s $(readlink -f ../dlls) jni/server
-        PATH=$PATH":../ndk-binaries:" ndk-build -j$(nproc --all)
+        PATH=$PATH:"$(readlink -f ../ndk-binaries):" ndk-build -j$(nproc --all)
         echo "target=android-19" > project.properties
         mkdir assets
         python2 makepak.py gravgun-extras/ assets/extras.apk
-        ANROID_HOME=../ ant debug
+        ANDROID_HOME=$(readlink -f ../android-sdk) ant debug
         cp bin/mod-debug.apk ../gravgun.apk
     - uses: actions/upload-artifact@v2
       with:
