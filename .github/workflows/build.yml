@@ -21,10 +21,10 @@ jobs:
         git submodule init && git submodule update
         cd dlls
         make -j$(nproc --all) -f ../microndk/Microndk.mk
-        xz -9 ../server-linux.xz libserver.so
+        xz -c9 libserver.so ../server-linux.xz
         make -f ../microndk/Microndk.mk clean
         make 64BIT=1 -j$(nproc --all) -f ../microndk/Microndk.mk
-        xz -9 ../server-linux-amd64.xz libserver.so
+        xz -c9 libserver.so > ../server-linux-amd64.xz
         make -f ../microndk/Microndk.mk clean
         CC="i686-w64-mingw32-gcc" CXX="i686-w64-mingw32-g++" CXX="i686-w64-mingw32-g++" CXX="i686-w64-mingw32-g++" make -j$(nproc --all) -f ../microndk/Microndk.mk
         zip -9 ../server-win32.zip server.dll
