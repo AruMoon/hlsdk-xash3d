@@ -19,7 +19,7 @@ jobs:
         git clone --depth 1 https://github.com/mittorn/ndk-binaries
         git clone --depth 1 https://gitlab.com/LostGamer/android-sdk
         git submodule init && git submodule update
-	git clone --depth 1 https://github.com/nillerusr/gravgun-deploy
+        git clone --depth 1 https://github.com/nillerusr/gravgun-deploy
         cd dlls
         make -j$(nproc --all) -f ../microndk/Microndk.mk
         zip -9 ../gravgun-deploy/server-linux.zip libserver.so
