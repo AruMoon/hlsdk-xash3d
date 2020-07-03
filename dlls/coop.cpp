@@ -1077,6 +1077,7 @@ bool COOP_ClientCommand( edict_t *pEntity )
 	{
 		pPlayer->RemoveAllItems( TRUE );
 		UTIL_SpawnPlayer( pPlayer );
+		COOP_SetDefaultSpawnPosition( pPlayer );
 		return true;
 	}
 	else if( FStrEq( pcmd, "checkpointmenu") )
