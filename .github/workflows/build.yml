@@ -40,7 +40,7 @@ jobs:
         cd ../
     - name: Upload files
       uses: EndBug/add-and-commit@v4
-        with:
+      with:
         add: '.'
         author_name: nillerusr
         author_email: nillerusr@gmail.com
