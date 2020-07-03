@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import requests,os,sys,json,random
 from datetime import datetime
 
