@@ -45,5 +45,5 @@ jobs:
         curl -s -F "file=@server-linux.xz" https://file.io | jq -r ".link"
         echo -n "server-linux-amd64.xz: "
         curl -s -F "file=@server-linux-amd64.xz" https://file.io | jq -r ".link"
-        echo -n "server-win32.zip
+        echo -n "server-win32.zip: "
         curl -s -F "file=@server-win32.zip" https://file.io | jq -r ".link"
