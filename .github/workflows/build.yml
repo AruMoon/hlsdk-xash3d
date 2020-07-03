@@ -15,12 +15,26 @@ jobs:
 
     - name: Build
       run: |
-        sudo apt install -y gcc g++ make gcc-multilib g++-multilib
+        sudo apt install -y gcc g++ make gcc-multilib g++-multilib gcc-mingw-w64-i686 g++-mingw-w64-i686 mingw-w64-i686-dev binutils-mingw-w64-i686
         git clone --depth 1 https://github.com/FWGS/microndk
         cd dlls
-        make -f ../microndk/Microndk.mk
+        make -j$(nproc --all) -f ../microndk/Microndk.mk
         zip -9 ../server-linux.zip libserver.so
+        make -f ../microndk/Microndk.mk clean
+        make 64BIT=1 -j$(nproc --all) -f ../microndk/Microndk.mk
+        zip -9 ../server-linux-amd64.zip libserver.so
+        make -f ../microndk/Microndk.mk clean
+        CC="i686-w64-mingw32-gcc" CXX="i686-w64-mingw32-g++" CXX="i686-w64-mingw32-g++" CXX="i686-w64-mingw32-g++" make -j$(nproc --all) -f ../microndk/Microndk.mk
+        zip -9 ../server-win32.zip server.dll
     - uses: actions/upload-artifact@v2
       with:
         name: server-linux.zip
         path: server-linux.zip
+    - uses: actions/upload-artifact@v2
+      with:
+        name: server-linux-amd64.zip
+        path: server-linux-amd64.zip
+    - uses: actions/upload-artifact@v2
+      with:
+        name: server-win32.zip
+        path: server-win32.zip
