@@ -32,7 +32,7 @@ jobs:
         ln -s $(readlink -f ../dlls) jni/server
         PATH=$PATH":../ndk-binaries:" ndk-build -j$(nproc --all)
         echo "target=android-19" > project.properties
-        ANROID_HOME=$(readlink -f ../android-sdk) ant debug
+        ANDROID_HOME=$(readlink -f ../android-sdk) ant debug
         cp bin/mod-debug.apk ../gravgun.apk
     - uses: actions/upload-artifact@v2
       with:
