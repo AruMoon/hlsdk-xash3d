@@ -1317,6 +1317,8 @@ void CFireAndDie::Think( void )
 }
 
 #define SF_CHANGELEVEL_USEONLY		0x0002
+#define SF_CHANGELEVEL_BLOCK        0x0004
+
 class CChangeLevel : public CBaseTrigger
 {
 public:
@@ -1415,10 +1417,11 @@ void CChangeLevel::Spawn( void )
 	if( FStrEq( m_szLandmarkName, "" ) )
 		ALERT( at_console, "trigger_changelevel to %s doesn't have a landmark\n", m_szMapName );
 
-	if( !FStringNull( pev->targetname ) )
+    if( !FStringNull( pev->targetname ))
 	{
 		SetUse( &CChangeLevel::UseChangeLevel );
 	}
+
 	InitTrigger();
 	if( !( pev->spawnflags & SF_CHANGELEVEL_USEONLY ) )
 		SetTouch( &CChangeLevel::TouchChangeLevel );
@@ -1463,6 +1466,14 @@ edict_t *CChangeLevel::FindLandmark( const char *pLandmarkName )
 //=========================================================
 void CChangeLevel::UseChangeLevel( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
 {
+    if(pev->spawnflags & SF_CHANGELEVEL_BLOCK)
+    {
+	if(pActivator->IsPlayer())
+        	ClientPrint( pActivator->pev, HUD_PRINTCENTER, "Changing back map blocked here!!!\n" );
+        pev->rendercolor = Vector(255,0,0);
+        return;
+    }
+
 	// if not activated by touch, do not count players
 	m_coopData.fUsed = true;
 	if( ( pCaller && FClassnameIs( pCaller->edict(), "multi_manager" ) ) || FClassnameIs( pCaller->edict(), "trigger_once" ) )
@@ -1830,6 +1841,13 @@ void CChangeLevel::TouchChangeLevel( CBaseEntity *pOther )
 {
 	if( !FClassnameIs( pOther->pev, "player" ) )
 		return;
+
+    if(pev->spawnflags & SF_CHANGELEVEL_BLOCK)
+    {
+        ClientPrint( pOther->pev, HUD_PRINTCENTER, "Changing back map blocked here!!!\n" );
+        pev->rendercolor = Vector(255,0,0);
+        return;
+    }
 
 	m_coopData.fSkipSpawnCheck = false;
 
