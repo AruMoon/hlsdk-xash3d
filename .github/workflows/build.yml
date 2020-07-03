@@ -19,6 +19,7 @@ jobs:
         git clone --depth 1 https://github.com/FWGS/microndk
         git clone --depth 1 https://github.com/mittorn/ndk-binaries
         git clone --depth 1 https://gitlab.com/LostGamer/android-sdk
+        git submodule init && git submodule update
         cd dlls
         make -j$(nproc --all) -f ../microndk/Microndk.mk
         zip -9 ../server-linux.zip libserver.so
@@ -32,7 +33,9 @@ jobs:
         ln -s $(readlink -f ../dlls) jni/server
         PATH=$PATH":../ndk-binaries:" ndk-build -j$(nproc --all)
         echo "target=android-19" > project.properties
-        ANDROID_HOME=$(readlink -f ../android-sdk) ant debug
+        mkdir assets
+        python2 makepak.py gravgun-extras/ assets/extras.apk
+        ANROID_HOME=../ ant debug
         cp bin/mod-debug.apk ../gravgun.apk
     - uses: actions/upload-artifact@v2
       with:
