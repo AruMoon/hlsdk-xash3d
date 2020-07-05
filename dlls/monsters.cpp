@@ -33,6 +33,7 @@
 #include "decals.h"
 #include "soundent.h"
 #include "gamerules.h"
+#include "coop_util.h"
 
 #define MONSTER_CUT_CORNER_DIST		8 // 8 means the monster's bounding box is contained without the box of the node in WC
 
@@ -1340,27 +1341,62 @@ int CBaseMonster::CheckLocalMove( const Vector &vecStart, const Vector &vecEnd, 
 
 		if( !WALK_MOVE( ENT( pev ), flYaw, stepSize, WALKMOVE_CHECKONLY ) )
 		{
-			// can't take the next step, fail!
-			if( pflDist != NULL )
-			{
-				*pflDist = flStep;
-			}
-			if( pTarget && pTarget->edict() == gpGlobals->trace_ent )
-			{
-				// if this step hits target ent, the move is legal.
-				iReturn = LOCALMOVE_VALID;
-				break;
-			}
-			else
-			{
-				// If we're going toward an entity, and we're almost getting there, it's OK.
-				//if( pTarget && fabs( flDist - iStep ) < LOCAL_STEP_SIZE )
-				//	fReturn = TRUE;
-				//else
-				iReturn = LOCALMOVE_INVALID;
-				break;
-			}
+            CBaseEntity *ent = CBaseEntity::Instance(gpGlobals->trace_ent);
+            if( mp_coop.value && pev->spawnflags & SF_MONSTER_PREDISASTER && ent && ent->IsPlayer() )
+            {
+                ent->pev->solid = SOLID_NOT;
+                if( !WALK_MOVE( ENT( pev ), flYaw, stepSize, WALKMOVE_CHECKONLY ) )
+                {
+                    if( ent ) ent->pev->solid = SOLID_SLIDEBOX;
 
+                    // can't take the next step, fail!
+                    if( pflDist != NULL )
+                    {
+                        *pflDist = flStep;
+                    }
+
+                    if( pTarget && pTarget->edict() == gpGlobals->trace_ent )
+                    {
+                        // if this step hits target ent, the move is legal.
+                        iReturn = LOCALMOVE_VALID;
+                        break;
+                    }
+                    else
+                    {
+                        // If we're going toward an entity, and we're almost getting there, it's OK.
+                        //if( pTarget && fabs( flDist - iStep ) < LOCAL_STEP_SIZE )
+                        //	fReturn = TRUE;
+                        //else
+                        iReturn = LOCALMOVE_INVALID;
+                        break;
+                    }
+                }
+                if( ent ) ent->pev->solid = SOLID_SLIDEBOX;
+            }
+            else
+            {
+                // can't take the next step, fail!
+                if( pflDist != NULL )
+                {
+                    *pflDist = flStep;
+                }
+
+                if( pTarget && pTarget->edict() == gpGlobals->trace_ent )
+                {
+                    // if this step hits target ent, the move is legal.
+                    iReturn = LOCALMOVE_VALID;
+                    break;
+                }
+                else
+                {
+                    // If we're going toward an entity, and we're almost getting there, it's OK.
+                    //if( pTarget && fabs( flDist - iStep ) < LOCAL_STEP_SIZE )
+                    //	fReturn = TRUE;
+                    //else
+                    iReturn = LOCALMOVE_INVALID;
+                    break;
+                }
+            }
 		}
 	}
 
@@ -1972,7 +2008,29 @@ void CBaseMonster::MoveExecute( CBaseEntity *pTargetEnt, const Vector &vecDir, f
 	{
 		// don't walk more than 16 units or stairs stop working
 		flStep = Q_min( 16.0, flTotal );
+
+        if(mp_coop.value)
+        {
+            for( int i = 1; i <= gpGlobals->maxClients; i++ )
+            {
+                CBaseEntity *pPlayer = UTIL_PlayerByIndex( i );
+
+                if( pPlayer && pPlayer->pev->solid == SOLID_SLIDEBOX && pPlayer->IsPlayer() )
+                    pPlayer->pev->solid = SOLID_NOT;
+            }
+        }
+
 		UTIL_MoveToOrigin( ENT( pev ), m_Route[m_iRouteIndex].vecLocation, flStep, MOVE_NORMAL );
+        if(mp_coop.value)
+        {
+            for( int i = 1; i <= gpGlobals->maxClients; i++ )
+            {
+                CBaseEntity *pPlayer = UTIL_PlayerByIndex( i );
+
+                if( pPlayer && pPlayer->pev->solid == SOLID_NOT && pPlayer->IsPlayer() )
+                    pPlayer->pev->solid = SOLID_SLIDEBOX;
+            }
+        }
 		flTotal -= flStep;
 	}
 	// ALERT( at_console, "dist %f\n", m_flGroundSpeed * pev->framerate * flInterval );

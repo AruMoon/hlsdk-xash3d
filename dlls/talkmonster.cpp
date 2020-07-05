@@ -23,6 +23,8 @@
 #include	"scripted.h"
 #include	"soundent.h"
 #include	"animation.h"
+#include    "player.h"
+#include    "coop_util.h"
 
 //=========================================================
 // Talking monster base class
@@ -831,6 +833,21 @@ void CTalkMonster::Touch( CBaseEntity *pOther )
 	// Did the player touch me?
 	if( pOther->IsPlayer() )
 	{
+        if( mp_coop.value && IsMoving() )
+        {
+            Vector dir = pOther->pev->origin - pev->origin;
+            Vector angles = UTIL_VecToAngles(dir);
+            //ALERT(at_console, "vectoang: %f %f %f\n", angles.x, angles.y, angles.z);
+            //ALERT(at_console, "ang: %f %f %f\n", pev->angles.x, pev->angles.y, pev->angles.z);
+            TraceResult tr;
+            if( abs(angles.y - pev->angles.y) < 90 )
+            {
+                UTIL_TraceHull( pOther->pev->origin + Vector( 0, 0, 20), pOther->pev->origin + Vector( RANDOM_FLOAT( -20, 20 ), RANDOM_FLOAT( -20, 20 ), 0 ), dont_ignore_monsters, human_hull, pOther->edict(), &tr);
+                if( !tr.fAllSolid )
+                    UTIL_SetOrigin(pOther->pev, tr.vecEndPos);
+            }
+        }
+
 		// Ignore if pissed at player
 		if( m_afMemory & bits_MEMORY_PROVOKED )
 			return;
@@ -840,6 +857,9 @@ void CTalkMonster::Touch( CBaseEntity *pOther )
 			return;
 
 		// Heuristic for determining if the player is pushing me away
+        if(mp_coop.value)
+            return;
+
 		float speed = fabs( pOther->pev->velocity.x ) + fabs( pOther->pev->velocity.y );
 		if( speed > 50 )
 		{
