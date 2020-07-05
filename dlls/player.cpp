@@ -1978,7 +1978,7 @@ void CBasePlayer::PreThink( void )
 
 			if( plr && plr->pev->solid == SOLID_SLIDEBOX && plr->IsPlayer() )
 			{
-				plr->pev->solid = SOLID_NOT;
+				plr->pev->solid = SOLID_TRIGGER;
 			}
 		}
 	}
@@ -1995,7 +1995,7 @@ void CBasePlayer::Touch( CBaseEntity *pOther )
 
 			if( plr && plr->pev->solid == SOLID_SLIDEBOX && plr->IsPlayer() )
 			{
-				plr->pev->solid = SOLID_NOT;
+				plr->pev->solid = SOLID_TRIGGER;
 			}
 		}
 		g_flSemclipTime = gpGlobals->time;
@@ -2575,7 +2575,7 @@ void CBasePlayer::PostThink()
 		{
 			CBaseEntity *plr = UTIL_PlayerByIndex( i );
 
-			if( plr && plr->pev->solid == SOLID_NOT && plr->IsPlayer() )
+			if( plr && plr->pev->solid == SOLID_TRIGGER && plr->IsPlayer() )
 			{
 				plr->pev->solid = SOLID_SLIDEBOX;
 				UTIL_SetOrigin(plr->pev, plr->pev->origin);

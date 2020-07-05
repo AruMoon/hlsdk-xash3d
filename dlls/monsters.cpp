@@ -1344,7 +1344,7 @@ int CBaseMonster::CheckLocalMove( const Vector &vecStart, const Vector &vecEnd, 
             CBaseEntity *ent = CBaseEntity::Instance(gpGlobals->trace_ent);
             if( mp_coop.value && pev->spawnflags & SF_MONSTER_PREDISASTER && ent && ent->IsPlayer() )
             {
-                ent->pev->solid = SOLID_NOT;
+                ent->pev->solid = SOLID_TRIGGER;
                 if( !WALK_MOVE( ENT( pev ), flYaw, stepSize, WALKMOVE_CHECKONLY ) )
                 {
                     if( ent ) ent->pev->solid = SOLID_SLIDEBOX;
@@ -2016,7 +2016,7 @@ void CBaseMonster::MoveExecute( CBaseEntity *pTargetEnt, const Vector &vecDir, f
                 CBaseEntity *pPlayer = UTIL_PlayerByIndex( i );
 
                 if( pPlayer && pPlayer->pev->solid == SOLID_SLIDEBOX && pPlayer->IsPlayer() )
-                    pPlayer->pev->solid = SOLID_NOT;
+                    pPlayer->pev->solid = SOLID_TRIGGER;
             }
         }
 
@@ -2027,7 +2027,7 @@ void CBaseMonster::MoveExecute( CBaseEntity *pTargetEnt, const Vector &vecDir, f
             {
                 CBaseEntity *pPlayer = UTIL_PlayerByIndex( i );
 
-                if( pPlayer && pPlayer->pev->solid == SOLID_NOT && pPlayer->IsPlayer() )
+                if( pPlayer && pPlayer->pev->solid == SOLID_TRIGGER && pPlayer->IsPlayer() )
                     pPlayer->pev->solid = SOLID_SLIDEBOX;
             }
         }
