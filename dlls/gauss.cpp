@@ -25,6 +25,7 @@
 #include "shake.h"
 #include "gamerules.h"
 #include "game.h"
+#include "gravgunmod.h"
 
 #define	GAUSS_PRIMARY_CHARGE_VOLUME	256// how loud gauss is while charging
 #define GAUSS_PRIMARY_FIRE_VOLUME	450// how loud gauss is when discharged
@@ -353,7 +354,7 @@ void CGauss::StartFire( void )
 			m_pPlayer->pev->velocity = m_pPlayer->pev->velocity - gpGlobals->v_forward * flDamage * 5;
 		}
 
-		if( !g_pGameRules->IsMultiplayer() )
+		if( !g_pGameRules->IsMultiplayer() || !mp_allow_gaussjump.value )
 		{
 			// in deathmatch, gauss can pop you up into the air. Not in single play.
 			m_pPlayer->pev->velocity.z = flZVel;

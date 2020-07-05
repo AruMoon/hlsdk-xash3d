@@ -34,6 +34,7 @@ extern cvar_t mp_maxwaterdist;
 extern cvar_t mp_maxmonsterdist;
 extern cvar_t mp_maxotherdist;
 extern cvar_t mp_enttools_checkmodels;
+extern cvar_t mp_allow_gaussjump;
 
 // tempentity clipping
 // if enabled, ignores PVS, so use only on open world

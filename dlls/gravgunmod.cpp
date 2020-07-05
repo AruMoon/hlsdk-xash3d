@@ -45,6 +45,7 @@ cvar_t mp_enttools_checkmodels = { "mp_enttools_checkmodels", "0", FCVAR_SERVER 
 cvar_t mp_errormdl = { "mp_errormdl", "0", FCVAR_SERVER };
 cvar_t mp_errormdlpath = { "mp_errormdlpath", "models/error.mdl", FCVAR_SERVER };
 cvar_t mp_allow_restore = { "mp_allow_restore", "0", FCVAR_SERVER };
+cvar_t mp_allow_gaussjump = { "mp_allow_gaussjump", "1", FCVAR_SERVER };
 
 cvar_t *zombietime = NULL;
 static char gamedir[MAX_PATH];
@@ -3151,6 +3152,7 @@ void GGM_RegisterCVars( void )
 	CVAR_REGISTER( &mp_skipdefaults );
 	CVAR_REGISTER( &mp_spectator );
 	CVAR_REGISTER( &mp_allow_restore );
+	CVAR_REGISTER( &mp_allow_gaussjump );
 
 	g_engfuncs.pfnAddServerCommand( "ent_rungc", Ent_RunGC_f );
 	g_engfuncs.pfnAddServerCommand( "mp_lightstyle", GGM_LightStyle_f );
