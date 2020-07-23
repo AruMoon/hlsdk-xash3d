@@ -3170,3 +3170,14 @@ void GGM_RegisterCVars( void )
 
 	GET_GAME_DIR(gamedir);
 }
+
+extern "C"
+{
+	int GGM_IsCoopPlayer(int index)
+	{
+		if( mp_semclip.value && index >= 1 && index <= gpGlobals->maxClients+1 )
+			return TRUE;
+		return FALSE;
+	}
+}
+

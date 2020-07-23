@@ -39,6 +39,15 @@ extern float vJumpOrigin[3];
 extern float vJumpAngles[3];
 #endif
 
+extern int GGM_IsCoopPlayer( int index );
+
+int PM_Ignore( physent_t *pe )
+{
+	if( GGM_IsCoopPlayer(pe->info) )
+		return 1;
+	return 0;
+}
+
 static int pm_shared_initialized = 0;
 
 #ifdef _MSC_VER
@@ -886,7 +895,7 @@ int PM_FlyMove( void )
 			end[i] = pmove->origin[i] + time_left * pmove->velocity[i];
 
 		// See if we can make it from origin to end point.
-		trace = pmove->PM_PlayerTrace( pmove->origin, end, PM_NORMAL, -1 );
+		trace = pmove->PM_PlayerTraceEx( pmove->origin, end, PM_NORMAL, PM_Ignore );
 
 		allFraction += trace.fraction;
 		// If we started in a solid object, or we were in solid space
@@ -1155,7 +1164,7 @@ void PM_WalkMove()
 
 	// first try moving directly to the next spot
 	//VectorCopy( dest, start );
-	trace = pmove->PM_PlayerTrace( pmove->origin, dest, PM_NORMAL, -1 );
+	trace = pmove->PM_PlayerTraceEx( pmove->origin, dest, PM_NORMAL, PM_Ignore );
 	// If we made it all the way, then copy trace end
 	//  as new player position.
 	if( trace.fraction == 1 )
@@ -1193,7 +1202,7 @@ void PM_WalkMove()
 	VectorCopy( pmove->origin, dest );
 	dest[2] += pmove->movevars->stepsize;
 
-	trace = pmove->PM_PlayerTrace( pmove->origin, dest, PM_NORMAL, -1 );
+	trace = pmove->PM_PlayerTraceEx( pmove->origin, dest, PM_NORMAL, PM_Ignore );
 	// If we started okay and made it part of the way at least,
 	//  copy the results to the movement start position and then
 	//  run another move try.
@@ -1211,7 +1220,7 @@ void PM_WalkMove()
 	VectorCopy( pmove->origin, dest );
 	dest[2] -= pmove->movevars->stepsize;
 
-	trace = pmove->PM_PlayerTrace( pmove->origin, dest, PM_NORMAL, -1 );
+	trace = pmove->PM_PlayerTraceEx( pmove->origin, dest, PM_NORMAL, PM_Ignore );
 
 	// If we are not on the ground any more then
 	//  use the original movement attempt
@@ -1285,7 +1294,7 @@ void PM_Friction( void )
 		start[2] = pmove->origin[2] + pmove->player_mins[pmove->usehull][2];
 		stop[2] = start[2] - 34;
 
-		trace = pmove->PM_PlayerTrace( start, stop, PM_NORMAL, -1 );
+		trace = pmove->PM_PlayerTraceEx( start, stop, PM_NORMAL, PM_Ignore );
 
 		if( trace.fraction == 1.0 )
 			friction = pmove->movevars->friction*pmove->movevars->edgefriction;
@@ -1444,7 +1453,7 @@ void PM_WaterMove( void )
 	VectorMA( pmove->origin, pmove->frametime, pmove->velocity, dest );
 	VectorCopy( dest, start );
 	start[2] += pmove->movevars->stepsize + 1;
-	trace = pmove->PM_PlayerTrace( start, dest, PM_NORMAL, -1 );
+	trace = pmove->PM_PlayerTraceEx( start, dest, PM_NORMAL, PM_Ignore );
 	if( !trace.startsolid && !trace.allsolid )	// FIXME: check steep slope?
 	{	// walked up the step, so just keep result and exit
 		VectorCopy( trace.endpos, pmove->origin );
@@ -1621,7 +1630,7 @@ void PM_CatagorizePosition( void )
 	else
 	{
 		// Try and move down.
-		tr = pmove->PM_PlayerTrace( pmove->origin, point, PM_NORMAL, -1 );
+		tr = pmove->PM_PlayerTraceEx( pmove->origin, point, PM_NORMAL, PM_Ignore );
 		// If we hit a steep plane, we are not on ground
 		if( tr.plane.normal[2] < 0.7 )
 			pmove->onground = -1;	// too steep
@@ -1695,7 +1704,7 @@ int PM_CheckStuck( void )
 	static float rgStuckCheckTime[MAX_CLIENTS][2]; // Last time we did a full
 
 	// If position is okay, exit
-	hitent = pmove->PM_TestPlayerPosition( pmove->origin, &traceresult );
+	hitent = pmove->PM_TestPlayerPositionEx( pmove->origin, &traceresult, PM_Ignore );
 	if( hitent == -1 )
 	{
 		PM_ResetStuckOffsets( pmove->player_index, pmove->server );
@@ -1719,7 +1728,7 @@ int PM_CheckStuck( void )
 				i = PM_GetRandomStuckOffsets( pmove->player_index, pmove->server, offset );
 
 				VectorAdd( base, offset, test );
-				if( pmove->PM_TestPlayerPosition( test, &traceresult ) == -1 )
+				if( pmove->PM_TestPlayerPositionEx( test, &traceresult, PM_Ignore ) == -1 )
 				{
 					PM_ResetStuckOffsets( pmove->player_index, pmove->server );
 
@@ -1750,7 +1759,7 @@ int PM_CheckStuck( void )
 	i = PM_GetRandomStuckOffsets( pmove->player_index, pmove->server, offset );
 
 	VectorAdd( base, offset, test );
-	if( ( hitent = pmove->PM_TestPlayerPosition( test, NULL ) ) == -1 )
+	if( ( hitent = pmove->PM_TestPlayerPositionEx( test, NULL, PM_Ignore ) ) == -1 )
 	{
 		//Con_DPrintf( "Nudged\n" );
 
@@ -1781,7 +1790,7 @@ int PM_CheckStuck( void )
 					test[1] += y;
 					test[2] += z;
 
-					if( pmove->PM_TestPlayerPosition( test, NULL ) == -1 )
+					if( pmove->PM_TestPlayerPositionEx( test, NULL, PM_Ignore ) == -1 )
 					{
 						VectorCopy( test, pmove->origin );
 						return 0;
@@ -1946,7 +1955,7 @@ void PM_FixPlayerCrouchStuck( int direction )
 	int i;
 	vec3_t test;
 
-	hitent = pmove->PM_TestPlayerPosition( pmove->origin, NULL );
+	hitent = pmove->PM_TestPlayerPositionEx( pmove->origin, NULL, PM_Ignore );
 	if( hitent == -1 )
 		return;
 
@@ -1954,7 +1963,7 @@ void PM_FixPlayerCrouchStuck( int direction )
 	for( i = 0; i < 36; i++ )
 	{
 		pmove->origin[2] += direction;
-		hitent = pmove->PM_TestPlayerPosition( pmove->origin, NULL );
+		hitent = pmove->PM_TestPlayerPositionEx( pmove->origin, NULL, PM_Ignore );
 		if( hitent == -1 )
 			return;
 	}
@@ -1978,14 +1987,14 @@ void PM_UnDuck( void )
 		}
 	}
 
-	trace = pmove->PM_PlayerTrace( newOrigin, newOrigin, PM_NORMAL, -1 );
+	trace = pmove->PM_PlayerTraceEx( newOrigin, newOrigin, PM_NORMAL, PM_Ignore );
 
 	if( !trace.startsolid )
 	{
 		pmove->usehull = 0;
 
 		// Oh, no, changing hulls stuck us into something, try unsticking downward first.
-		trace = pmove->PM_PlayerTrace( newOrigin, newOrigin, PM_NORMAL, -1 );
+		trace = pmove->PM_PlayerTraceEx( newOrigin, newOrigin, PM_NORMAL, PM_Ignore );
 		if( trace.startsolid )
 		{
 			// See if we are stuck?  If so, stay ducked with the duck hull until we have a clear spot
@@ -2297,7 +2306,7 @@ pmtrace_t PM_PushEntity( vec3_t push )
 
 	VectorAdd( pmove->origin, push, end );
 
-	trace = pmove->PM_PlayerTrace( pmove->origin, end, PM_NORMAL, -1 );
+	trace = pmove->PM_PlayerTraceEx( pmove->origin, end, PM_NORMAL, PM_Ignore );
 
 	VectorCopy( trace.endpos, pmove->origin );
 
@@ -2669,14 +2678,14 @@ void PM_CheckWaterJump( void )
 	// Trace, this trace should use the point sized collision hull
 	savehull = pmove->usehull;
 	pmove->usehull = 2;
-	tr = pmove->PM_PlayerTrace( vecStart, vecEnd, PM_NORMAL, -1 );
+	tr = pmove->PM_PlayerTraceEx( vecStart, vecEnd, PM_NORMAL, PM_Ignore );
 	if( tr.fraction < 1.0 && fabs( tr.plane.normal[2] ) < 0.1f )  // Facing a near vertical wall?
 	{
 		vecStart[2] += pmove->player_maxs[savehull][2] - WJ_HEIGHT;
 		VectorMA( vecStart, 24, flatforward, vecEnd );
 		VectorMA( vec3_origin, -50, tr.plane.normal, pmove->movedir );
 
-		tr = pmove->PM_PlayerTrace( vecStart, vecEnd, PM_NORMAL, -1 );
+		tr = pmove->PM_PlayerTraceEx( vecStart, vecEnd, PM_NORMAL, PM_Ignore );
 		if( tr.fraction == 1.0 )
 		{
 			pmove->waterjumptime = 2000;

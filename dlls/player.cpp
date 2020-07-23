@@ -1474,7 +1474,7 @@ void CBasePlayer::PlayerUse( void )
 		return;
 
 	// Was use pressed or released?
-	if( !( ( pev->button | m_afButtonPressed | m_afButtonReleased) & IN_USE ) )
+	if( !( ( pev->button | m_afButtonPressed | m_afButtonReleased) & IN_USE ) || (pev->flags & FL_SPECTATOR) )
 		return;
 
 	// Hit Use on a train?
@@ -1815,7 +1815,7 @@ void CBasePlayer::UpdateStatusBar()
 #define	CLIMB_SPEED_DEC			15	// climbing deceleration rate
 #define	CLIMB_PUNCH_X			-7  // how far to 'punch' client X axis when climbing
 #define CLIMB_PUNCH_Z			7	// how far to 'punch' client Z axis when climbing
-float g_flSemclipTime;
+
 void CBasePlayer::PreThink( void )
 {
 	int buttonsChanged = ( m_afButtonLast ^ pev->button );	// These buttons have changed this frame
@@ -1968,38 +1968,11 @@ void CBasePlayer::PreThink( void )
 			}
 		}
 	}
-
-	// keep semclip 0.5 seconds
-	if( mp_semclip.value && (gpGlobals->time - g_flSemclipTime < 0.5 ) )
-	{
-		for( int i = 1; i <= gpGlobals->maxClients; i++ )
-		{
-			CBaseEntity *plr = UTIL_PlayerByIndex( i );
-
-			if( plr && plr->pev->solid == SOLID_SLIDEBOX && plr->IsPlayer() )
-			{
-				plr->pev->solid = SOLID_TRIGGER;
-			}
-		}
-	}
 }
 
 void CBasePlayer::Touch( CBaseEntity *pOther )
 {
-    if( pOther && pOther->IsPlayer() )
-	if( mp_semclip.value )
-	{
-		for( int i = 1; i <= gpGlobals->maxClients; i++ )
-		{
-			CBaseEntity *plr = UTIL_PlayerByIndex( i );
-
-			if( plr && plr->pev->solid == SOLID_SLIDEBOX && plr->IsPlayer() )
-			{
-				plr->pev->solid = SOLID_TRIGGER;
-			}
-		}
-		g_flSemclipTime = gpGlobals->time;
-	}
+	return;
 }
 /* Time based Damage works as follows: 
 	1) There are several types of timebased damage:
@@ -2569,20 +2542,6 @@ void CBasePlayer::PostThink()
 	if( !IsAlive() )
 		goto pt_end;
 
-	if( mp_semclip.value )
-	{
-		for( int i = 1; i < gpGlobals->maxClients; i++ )
-		{
-			CBaseEntity *plr = UTIL_PlayerByIndex( i );
-
-			if( plr && plr->pev->solid == SOLID_TRIGGER && plr->IsPlayer() )
-			{
-				plr->pev->solid = SOLID_SLIDEBOX;
-				UTIL_SetOrigin(plr->pev, plr->pev->origin);
-			}
-		}
-	}
-
 	// Handle Tank controlling
 	if( m_pTank && m_ggm.iState == STATE_SPAWNED )
 	{
@@ -3005,7 +2964,6 @@ void CBasePlayer::Spawn( void )
 	m_ggm.flSpawnTime = gpGlobals->time;
 
 	g_pGameRules->PlayerSpawn( this );
-	g_flSemclipTime = 0;
 }
 
 void CBasePlayer::Precache( void )
