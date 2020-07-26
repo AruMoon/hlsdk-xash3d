@@ -22,6 +22,7 @@
 #include "nodes.h"
 #include "player.h"
 #include "gamerules.h"
+#include "game.h"
 
 #ifndef CLIENT_DLL
 #define BOLT_AIR_VELOCITY	2000
@@ -197,10 +198,15 @@ void CCrossbowBolt::BoltTouch( CBaseEntity *pOther )
 		}
 	}
 
-	if( g_pGameRules->IsMultiplayer() )
+	if( g_pGameRules->IsMultiplayer() && !mp_coop.value )
 	{
 		SetThink( &CCrossbowBolt::ExplodeThink );
 		pev->nextthink = gpGlobals->time + 0.1;
+	}
+	else
+	{
+		SetThink( &CCrossbowBolt::SUB_Remove );
+		pev->nextthink = gpGlobals->time + 10;
 	}
 }
 
@@ -355,7 +361,7 @@ void CCrossbow::PrimaryAttack( void )
 #ifdef CLIENT_DLL
 	if( m_fInZoom && bIsMultiplayer() )
 #else
-	if( m_fInZoom && g_pGameRules->IsMultiplayer() )
+	if( m_fInZoom && g_pGameRules->IsMultiplayer() && !mp_coop.value )
 #endif
 	{
 		FireSniperBolt();

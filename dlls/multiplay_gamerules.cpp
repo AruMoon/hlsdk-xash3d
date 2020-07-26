@@ -140,9 +140,12 @@ void CHalfLifeMultiplay::RefreshSkillData( void )
 
 	// override some values for multiplay.
 
+
+	if( mp_coop.value )
+		return;
+
 	// suitcharger
-	if( !mp_coop.value )
-		gSkillData.suitchargerCapacity = 30;
+	gSkillData.suitchargerCapacity = 30;
 
 	// Crowbar whack
 	gSkillData.plrDmgCrowbar = 25;
