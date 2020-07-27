@@ -1468,8 +1468,6 @@ void CChangeLevel::UseChangeLevel( CBaseEntity *pActivator, CBaseEntity *pCaller
 {
     if(pev->spawnflags & SF_CHANGELEVEL_BLOCK)
     {
-	if(pActivator->IsPlayer())
-        	ClientPrint( pActivator->pev, HUD_PRINTCENTER, "Changing back map blocked here!!!\n" );
         pev->rendercolor = Vector(255,0,0);
         return;
     }
