@@ -67,6 +67,7 @@ struct COOPState
 
 		// data for spawnpoint
 		struct GGMPosition savedPos;
+		float flGravity;
 		bool fSaved;
 		char rgszSaveSlots[COOP_SAVE_COUNT][32];
 		char iLastAutoSave;
