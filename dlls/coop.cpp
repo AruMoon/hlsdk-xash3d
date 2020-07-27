@@ -459,6 +459,12 @@ void UTIL_SpawnPlayer( CBasePlayer *pPlayer )
 	if( mp_coop.value )
 	{
 		pPlayer->pev->gravity = g_CoopState.p.flGravity;
+		if( g_CoopState.p.fLongJump )
+		{
+			pPlayer->m_fLongJump = g_CoopState.p.fLongJump;
+			g_engfuncs.pfnSetPhysicsKeyValue( pPlayer->edict(), "slj", "1" );
+		}
+
 		CLIENT_COMMAND( pPlayer->edict(), "touch_show _coopm*\n" );
 	}
 }
@@ -493,9 +499,13 @@ void COOP_AddDefaultWeapon( const char *classname )
 	if( !strcmp( classname, "item_healthkit") )
 		return;
 
+	if( !strcmp( classname, "item_longjump") )
+		return;
+
 	for(i = 0; i < g_CoopState.p.iWeaponCount;i++)
 		if(!strcmp(g_CoopState.p.rgszWeapons[i], classname))
 			return;
+
 	strcpy(g_CoopState.p.rgszWeapons[g_CoopState.p.iWeaponCount++], classname);
 	for( int i = 1; i <= gpGlobals->maxClients; i++ )
 	{
@@ -707,6 +717,7 @@ void COOP_ServerActivate( void )
 		strncpy(pNewState->p.szMapName, STRING(gpGlobals->mapname), 31);
 		g_CoopState.pMapStates = g_CoopState.pCurrentMap = pNewState;
 		g_CoopState.p.flGravity = 1.0;
+		g_CoopState.p.fLongJump = FALSE;
 		GGM_ClearLists();
 	}
 

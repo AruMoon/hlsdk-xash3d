@@ -69,6 +69,7 @@ struct COOPState
 		struct GGMPosition savedPos;
 		float flGravity;
 		bool fSaved;
+		bool fLongJump;
 		char rgszSaveSlots[COOP_SAVE_COUNT][32];
 		char iLastAutoSave;
 	} p;
