@@ -4777,7 +4777,20 @@ void CStripWeapons::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE
 		pPlayer = (CBasePlayer *)CBaseEntity::Instance( g_engfuncs.pfnPEntityOfEntIndex( 1 ) );
 	}
 
-	if( pPlayer )
+	if(mp_coop.value)
+	{
+		g_CoopState.p.iWeaponCount = 0;
+
+		for(int i = 1; i < gpGlobals->maxClients; i++)
+		{
+			CBaseEntity *ent = UTIL_PlayerByIndex(i);
+			if( ent && ent->IsPlayer() )
+			{
+				((CBasePlayer*)ent)->RemoveAllItems( FALSE );
+			}
+		}
+	}
+	else if( pPlayer )
 		pPlayer->RemoveAllItems( FALSE );
 }
 

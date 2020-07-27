@@ -7,71 +7,6 @@
 
 bool g_fPause;
 
-// offset for all maps relative to current map
-struct COOPMapState
-{
-	struct COOPMapPersist
-	{
-		char szMapName[32];
-		Vector vecOffset;
-		struct COOPCheckpoint {
-			char szDisplayName[32];
-			float flTime;
-			struct GGMPosition pos;
-		} rgCheckpoints[5];
-	} p;
-
-	struct COOPMapState *pNext;
-};
-
-struct COOPLandmarkTransition {
-	char szSourceMap[32];
-	char szTargetMap[32];
-	char szLandmarkName[32];
-	Vector vecLandmark;
-	bool fTriggerUsed;
-	bool fSavedPos;
-	struct GGMPosition pos;
-	bool fLoading;
-};
-
-enum COOPSaveSlot
-{
-	COOP_SAVE_START1 = 0,
-	COOP_SAVE_START2,
-	COOP_SAVE_AUTO1,
-	COOP_SAVE_AUTO2,
-	COOP_SAVE_COUNT
-};
-
-struct COOPState
-{
-	// will be saved
-	struct COOPPersist
-	{
-		// weapon list
-		char rgszWeapons[64][32];
-		int iWeaponCount;
-
-		// data for spawnpoint
-		struct GGMPosition savedPos;
-		bool fSaved;
-		char rgszSaveSlots[COOP_SAVE_COUNT][32];
-		char iLastAutoSave;
-	} p;
-
-	// runtime state
-	struct COOPMapState *pMapStates;
-	struct COOPMapState *pCurrentMap;
-
-	// translate GGMMapState during changelevel
-	struct COOPLandmarkTransition landmarkTransition;
-
-	int iVote;
-	float flMsgLimit1, flMsgLimit2;
-
-} g_CoopState;
-
 cvar_t mp_coop = { "mp_coop", "0", FCVAR_SERVER };
 cvar_t mp_coop_nofriendlyfire = { "mp_coop_nofriendlyfire", "0", FCVAR_SERVER };
 cvar_t mp_coop_reconnect_hack = { "mp_coop_reconnect_hack", "0", FCVAR_SERVER };
@@ -85,6 +20,8 @@ cvar_t mp_coop_pause = { "mp_coop_pause", "1", FCVAR_SERVER };
 cvar_t materials_txt = { "materials_txt", "sound/materials.txt", FCVAR_SERVER };
 cvar_t sentences_txt = { "sentences_txt", "sound/sentences.txt", FCVAR_SERVER };
 void COOP_CheckpointMenu( CBasePlayer *pPlayer );
+
+struct COOPState g_CoopState;
 
 /*
 =========================
