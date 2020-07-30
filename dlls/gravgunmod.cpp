@@ -3183,3 +3183,63 @@ extern "C"
 	}
 }
 
+BOOL GGM_CanUse(Vector vecSrc, CBaseEntity *ent ,CBaseEntity *trent)
+{
+	int i;
+	Vector min = trent->pev->absmin;
+	Vector size, vecEnd, dest, ang;
+	TraceResult trace;
+
+	for(i = 0; i < 3; i++)
+	{
+		size = trent->pev->size;
+		size[i] *= 0.5;
+
+		if( i+1 > 2 ) size[i-2] *= 0.5;
+		else size[i+1] *= 0.5;
+
+		vecEnd = min + size;
+
+		dest = vecEnd - vecSrc;
+		dest.z = -dest.z;
+		ang = UTIL_VecToAngles( dest );
+		UTIL_MakeVectors(ang);
+		UTIL_TraceLine( vecSrc, vecEnd + gpGlobals->v_forward * 10, ignore_monsters, ENT(ent->pev), &trace );
+		if( trace.pHit == trent->edict() )
+			return TRUE;
+	}
+
+	for(i = 0; i < 3; i++)
+	{
+		size = trent->pev->size;
+		size[i] *= 0.5;
+
+		if( i+1 > 2 ) size[i-2] *= 0.5;
+		else size[i+1] *= 0.5;
+
+		if( i+2 > 2 ) size[i-1] = 0;
+		else size[i+2] = 0;
+
+		vecEnd = min + size;
+
+		dest = vecEnd - vecSrc;
+		dest.z = -dest.z;
+		ang = UTIL_VecToAngles( dest );
+		UTIL_MakeVectors(ang);
+		UTIL_TraceLine( vecSrc, vecEnd + gpGlobals->v_forward * 10, ignore_monsters, ENT(ent->pev), &trace );
+		if( trace.pHit == trent->edict() )
+			return TRUE;
+	}
+
+	vecEnd = min + trent->pev->size*0.5;
+
+	dest = vecEnd - vecSrc;
+	dest.z = -dest.z;
+	ang = UTIL_VecToAngles( dest );
+	UTIL_MakeVectors(ang);
+
+	if( trace.pHit == trent->edict() )
+		return TRUE;
+
+	return FALSE;
+}

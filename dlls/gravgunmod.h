@@ -208,6 +208,7 @@ void GGM_ClearVote( void );
 void GGM_StartVoteCommand( CBasePlayer *pPlayer, const char *pszCommand, const char *pszMessage );
 void GGM_ConnectSaveBot( void );
 int GGM_ConnectionlessPacket( const struct netadr_s *net_from, const char *args, char *response_buffer, int *response_buffer_size );
+BOOL GGM_CanUse(Vector vecSrc, CBaseEntity *ent ,CBaseEntity *trent);
 
 #endif // GRAVGUNMOD_H
 

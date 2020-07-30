@@ -1553,12 +1553,13 @@ void CBasePlayer::PlayerUse( void )
 		TraceResult trace;
 		if( mp_buttonfix.value && pObject->IsBSPModel() )
 		{
+/* 			CBaseEntity *bruh = GGM_FindEntByTrace(EyePosition(), pObject);
 			dest = VecBModelOrigin( pObject->pev ) - EyePosition();
 			dest.z = -dest.z;
 			Vector ang = UTIL_VecToAngles( dest );
 			UTIL_MakeVectors(ang);
 			UTIL_TraceLine( EyePosition(), VecBModelOrigin( pObject->pev ) + gpGlobals->v_forward * 10, ignore_monsters, ENT(this->pev), &trace );
-/*
+
 			MESSAGE_BEGIN( MSG_PVS, SVC_TEMPENTITY, pev->origin );
 				WRITE_BYTE( TE_SHOWLINE );
 				WRITE_COORD( EyePosition().x );
@@ -1568,9 +1569,11 @@ void CBasePlayer::PlayerUse( void )
 				WRITE_COORD( trace.vecEndPos.y );
 				WRITE_COORD( trace.vecEndPos.z );
 			MESSAGE_END();
-*/
+
 			CBaseEntity *pHit = CBaseEntity::Instance( trace.pHit );
-			if( !pHit || (pHit && pHit != pObject) )
+			if( !pHit || (pHit && pHit != pObject) )*/
+
+			if( !GGM_CanUse( EyePosition(), this, pObject) )
 					return;
 		}
 
