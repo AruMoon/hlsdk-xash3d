@@ -1545,13 +1545,31 @@ void CBasePlayer::PlayerUse( void )
 	}
 	pObject = pClosest;
 
+	Vector dest;
+
 	// Found an object
 	if( pObject )
 	{
 		TraceResult trace;
 		if( mp_buttonfix.value )
 		{
-			UTIL_TraceLine( EyePosition(), VecBModelOrigin( pObject->pev ), ignore_monsters, ENT(this->pev), &trace );
+			dest = VecBModelOrigin( pObject->pev ) - pev->origin;
+			dest.z = -dest.z;
+			UTIL_MakeVectors(dest);
+			UTIL_TraceLine( EyePosition(), VecBModelOrigin( pObject->pev ) + gpGlobals->v_forward * 10, ignore_monsters, ENT(this->pev), &trace );
+
+			/*
+			MESSAGE_BEGIN( MSG_PVS, SVC_TEMPENTITY, pev->origin );
+				WRITE_BYTE( TE_SHOWLINE );
+				WRITE_COORD( EyePosition().x );
+				WRITE_COORD( EyePosition().y );
+				WRITE_COORD( EyePosition().z );
+				WRITE_COORD( trace.vecEndPos.x );
+				WRITE_COORD( trace.vecEndPos.y );
+				WRITE_COORD( trace.vecEndPos.z );
+			MESSAGE_END();
+			*/
+
 			CBaseEntity *pHit = CBaseEntity::Instance( trace.pHit );
 			if( !pHit || (pHit && pHit != pObject) )
 					return;
