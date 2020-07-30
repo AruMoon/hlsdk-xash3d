@@ -24,6 +24,8 @@ extern cvar_t mp_fixhornetbug;
 extern cvar_t mp_checkentities;
 extern cvar_t mp_touchmenu;
 extern cvar_t mp_fixsavetime;
+extern cvar_t mp_allow_gaussjump;
+extern cvar_t mp_buttonfix;
 
 // distance clipping (client.cpp)
 // useful for open world
@@ -34,7 +36,7 @@ extern cvar_t mp_maxwaterdist;
 extern cvar_t mp_maxmonsterdist;
 extern cvar_t mp_maxotherdist;
 extern cvar_t mp_enttools_checkmodels;
-extern cvar_t mp_allow_gaussjump;
+
 
 // tempentity clipping
 // if enabled, ignores PVS, so use only on open world

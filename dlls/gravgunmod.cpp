@@ -46,6 +46,7 @@ cvar_t mp_errormdl = { "mp_errormdl", "0", FCVAR_SERVER };
 cvar_t mp_errormdlpath = { "mp_errormdlpath", "models/error.mdl", FCVAR_SERVER };
 cvar_t mp_allow_restore = { "mp_allow_restore", "0", FCVAR_SERVER };
 cvar_t mp_allow_gaussjump = { "mp_allow_gaussjump", "1", FCVAR_SERVER};
+cvar_t mp_buttonfix = { "mp_buttonfix", "0", FCVAR_SERVER};
 
 cvar_t *zombietime = NULL;
 static char gamedir[MAX_PATH];
@@ -3153,6 +3154,7 @@ void GGM_RegisterCVars( void )
 	CVAR_REGISTER( &mp_spectator );
 	CVAR_REGISTER( &mp_allow_restore );
 	CVAR_REGISTER( &mp_allow_gaussjump );
+	CVAR_REGISTER( &mp_buttonfix );
 
 	g_engfuncs.pfnAddServerCommand( "ent_rungc", Ent_RunGC_f );
 	g_engfuncs.pfnAddServerCommand( "mp_lightstyle", GGM_LightStyle_f );
@@ -3175,7 +3177,7 @@ extern "C"
 {
 	int GGM_IsCoopPlayer(int index)
 	{
-		if( mp_semclip.value && index >= 1 && index <= gpGlobals->maxClients+1 )
+		if( mp_coop.value && index >= 1 && index <= gpGlobals->maxClients+1 )
 			return TRUE;
 		return FALSE;
 	}

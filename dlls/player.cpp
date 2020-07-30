@@ -1548,7 +1548,15 @@ void CBasePlayer::PlayerUse( void )
 	// Found an object
 	if( pObject )
 	{
-		//!!!UNDONE: traceline here to prevent USEing buttons through walls			
+		TraceResult trace;
+		if( mp_buttonfix.value )
+		{
+			UTIL_TraceLine( EyePosition(), VecBModelOrigin( pObject->pev ), ignore_monsters, ENT(this->pev), &trace );
+			CBaseEntity *pHit = CBaseEntity::Instance( trace.pHit );
+			if( !pHit || (pHit && pHit != pObject) )
+					return;
+		}
+
 		int caps = pObject->ObjectCaps();
 
 		if( m_afButtonPressed & IN_USE )
