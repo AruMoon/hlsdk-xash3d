@@ -1551,7 +1551,7 @@ void CBasePlayer::PlayerUse( void )
 	if( pObject )
 	{
 		TraceResult trace;
-		if( mp_buttonfix.value )
+		if( mp_buttonfix.value && pObject->IsBSPModel() )
 		{
 			dest = VecBModelOrigin( pObject->pev ) - EyePosition();
 			dest.z = -dest.z;
