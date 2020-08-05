@@ -3188,6 +3188,15 @@ BOOL GGM_CanUse(Vector vecSrc, CBaseEntity *ent ,CBaseEntity *trent)
 	Vector vecEnd, dest, ang;
 	TraceResult trace;
 
+
+	vecEnd = trent->pev->origin + 0.5*(trent->pev->mins + trent->pev->maxs);
+	dest = vecEnd - vecSrc;
+	dest.z = -dest.z;
+	UTIL_MakeVectors(UTIL_VecToAngles( dest ));
+	UTIL_TraceLine( vecSrc, vecEnd + gpGlobals->v_forward * 30, ignore_monsters, ENT(ent->pev), &trace );
+	if( trace.pHit == trent->edict() )
+		return TRUE;
+
 	vecEnd = trent->pev->absmin;
 	dest = vecEnd - vecSrc;
 	dest.z = -dest.z;
@@ -3205,14 +3214,6 @@ BOOL GGM_CanUse(Vector vecSrc, CBaseEntity *ent ,CBaseEntity *trent)
 		return TRUE;
 
 	vecEnd = trent->pev->absmin + trent->pev->size;
-	dest = vecEnd - vecSrc;
-	dest.z = -dest.z;
-	UTIL_MakeVectors(UTIL_VecToAngles( dest ));
-	UTIL_TraceLine( vecSrc, vecEnd + gpGlobals->v_forward * 30, ignore_monsters, ENT(ent->pev), &trace );
-	if( trace.pHit == trent->edict() )
-		return TRUE;
-
-	vecEnd = trent->pev->absmin + trent->pev->size*0.5;
 	dest = vecEnd - vecSrc;
 	dest.z = -dest.z;
 	UTIL_MakeVectors(UTIL_VecToAngles( dest ));
