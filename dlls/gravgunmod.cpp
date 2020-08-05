@@ -3185,61 +3185,66 @@ extern "C"
 
 BOOL GGM_CanUse(Vector vecSrc, CBaseEntity *ent ,CBaseEntity *trent)
 {
-	int i;
-	Vector min = trent->pev->absmin;
-	Vector size, vecEnd, dest, ang;
+	Vector vecEnd, dest, ang;
 	TraceResult trace;
 
-	for(i = 0; i < 3; i++)
-	{
-		size = trent->pev->size;
-		size[i] *= 0.5;
-
-		if( i+1 > 2 ) size[i-2] *= 0.5;
-		else size[i+1] *= 0.5;
-
-		vecEnd = min + size;
-
-		dest = vecEnd - vecSrc;
-		dest.z = -dest.z;
-		ang = UTIL_VecToAngles( dest );
-		UTIL_MakeVectors(ang);
-		UTIL_TraceLine( vecSrc, vecEnd + gpGlobals->v_forward * 10, ignore_monsters, ENT(ent->pev), &trace );
-		if( trace.pHit == trent->edict() )
-			return TRUE;
-	}
-
-	for(i = 0; i < 3; i++)
-	{
-		size = trent->pev->size;
-		size[i] *= 0.5;
-
-		if( i+1 > 2 ) size[i-2] *= 0.5;
-		else size[i+1] *= 0.5;
-
-		if( i+2 > 2 ) size[i-1] = 0;
-		else size[i+2] = 0;
-
-		vecEnd = min + size;
-
-		dest = vecEnd - vecSrc;
-		dest.z = -dest.z;
-		ang = UTIL_VecToAngles( dest );
-		UTIL_MakeVectors(ang);
-		UTIL_TraceLine( vecSrc, vecEnd + gpGlobals->v_forward * 10, ignore_monsters, ENT(ent->pev), &trace );
-		if( trace.pHit == trent->edict() )
-			return TRUE;
-	}
-
-	vecEnd = min + trent->pev->size*0.5;
-
+	vecEnd = trent->pev->absmin;
 	dest = vecEnd - vecSrc;
 	dest.z = -dest.z;
-	ang = UTIL_VecToAngles( dest );
-	UTIL_MakeVectors(ang);
+	UTIL_MakeVectors(UTIL_VecToAngles( dest ));
+	UTIL_TraceLine( vecSrc, vecEnd + gpGlobals->v_forward * 30, ignore_monsters, ENT(ent->pev), &trace );
+	if( trace.pHit == trent->edict() )
+		return TRUE;
 
+	vecEnd = trent->pev->absmax;
+	dest = vecEnd - vecSrc;
+	dest.z = -dest.z;
+	UTIL_MakeVectors(UTIL_VecToAngles( dest ));
+	UTIL_TraceLine( vecSrc, vecEnd + gpGlobals->v_forward * 30, ignore_monsters, ENT(ent->pev), &trace );
+	if( trace.pHit == trent->edict() )
+		return TRUE;
+
+	vecEnd = trent->pev->absmin + trent->pev->size;
+	dest = vecEnd - vecSrc;
+	dest.z = -dest.z;
+	UTIL_MakeVectors(UTIL_VecToAngles( dest ));
+	UTIL_TraceLine( vecSrc, vecEnd + gpGlobals->v_forward * 30, ignore_monsters, ENT(ent->pev), &trace );
+	if( trace.pHit == trent->edict() )
+		return TRUE;
+
+	vecEnd = trent->pev->absmin + trent->pev->size*0.5;
+	dest = vecEnd - vecSrc;
+	dest.z = -dest.z;
+	UTIL_MakeVectors(UTIL_VecToAngles( dest ));
+	UTIL_TraceLine( vecSrc, vecEnd + gpGlobals->v_forward * 30, ignore_monsters, ENT(ent->pev), &trace );
+	if( trace.pHit == trent->edict() )
+		return TRUE;
+
+	UTIL_TraceHull(vecSrc, vecEnd + gpGlobals->v_forward * 30, ignore_monsters, head_hull, ENT(ent->pev), &trace);
+	if( trace.pHit == trent->edict() )
+		return TRUE;
+
+	UTIL_MakeVectors(ent->pev->v_angle);
+	UTIL_TraceLine( vecSrc, vecSrc + gpGlobals->v_forward * 100, ignore_monsters, ENT(ent->pev), &trace );
 	if( trace.pHit == trent->edict() )
 		return TRUE;
 
 	return FALSE;
+}
+
+#define RAD(x) (M_PI*x/180)
+
+void UTIL_RotateVector(Vector vecSrc, Vector angles, Vector &vec)
+{
+	vec.x = vecSrc.x*cos(RAD(angles.z))*cos(RAD(angles.y)) +
+			vecSrc.y*(cos(RAD(angles.z))*sin(RAD(angles.x))*sin(RAD(angles.y))-sin(RAD(angles.z))*cos(RAD(angles.x))) +
+			vecSrc.z*(cos(RAD(angles.z))*sin(RAD(angles.y))*cos(RAD(angles.x))-sin(RAD(angles.z))*sin(RAD(angles.x)));
+
+	vec.y = vecSrc.x*sin(RAD(angles.z))*cos(RAD(angles.y)) +
+			vecSrc.y*(sin(RAD(angles.z))*sin(RAD(angles.x))*sin(RAD(angles.y))+cos(RAD(angles.z))*cos(RAD(angles.x))) +
+			vecSrc.z*(sin(RAD(angles.z))*sin(RAD(angles.y))*cos(RAD(angles.x))-cos(RAD(angles.z))*sin(RAD(angles.x)));
+
+	vec.z = -vecSrc.x*sin(RAD(angles.y)) +
+			vecSrc.y*cos(RAD(angles.y))*sin(RAD(angles.x)) +
+			vecSrc.z*cos(RAD(angles.y))*cos(RAD(angles.x));
 }
