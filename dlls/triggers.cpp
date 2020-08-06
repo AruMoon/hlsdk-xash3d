@@ -2251,14 +2251,6 @@ void CBaseTrigger::TeleportTouch( CBaseEntity *pOther )
 	else
 		pevToucher->angles = pentTarget->v.angles;
 
-	if( pOther->IsPlayer() )
-	{
-		Vector vel;
-		UTIL_RotateVector(pevToucher->velocity, pentTarget->v.angles-pevToucher->v_angle, vel);
-		pevToucher->velocity = vel;
-		pevToucher->v_angle = pentTarget->v.angles;
-	}
-
 	pevToucher->fixangle = TRUE;
 	if( !( pev->spawnflags & SF_TRIGGER_PORTAL ) )
 		pevToucher->velocity = pevToucher->basevelocity = g_vecZero;
