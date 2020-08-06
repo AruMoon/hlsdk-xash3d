@@ -1318,6 +1318,7 @@ void CFireAndDie::Think( void )
 
 #define SF_CHANGELEVEL_USEONLY		0x0002
 #define SF_CHANGELEVEL_BLOCK        0x0004
+#define SF_CHANGELEVEL_NOCHECKBACK	0x0008
 
 class CChangeLevel : public CBaseTrigger
 {
@@ -1669,21 +1670,21 @@ void CChangeLevel::ChangeLevelNow( CBaseEntity *pActivator )
 				if( count2 )
 				{
 					pev->rendercolor.x = count1 * 255 / count2;
-					if( m_coopData.fIsBack )
+					if( m_coopData.fIsBack && !(pev->spawnflags & SF_CHANGELEVEL_NOCHECKBACK) )
 						pev->rendercolor.z = 255 - pev->rendercolor.x;
 					else
 						pev->rendercolor.y = 255 - pev->rendercolor.x;
 				}
 
-				//ALERT( at_console, "^3CHANGELEVEL:^7 %d %d\n", count2, count1 );
+				ALERT( at_console, "^3CHANGELEVEL:^7 %d %d\n", count2, count1 );
 
-				if( !m_coopData.fIsBack && count1 > 1 && count1 < count2 / 3 )
+				if( (!m_coopData.fIsBack || (pev->spawnflags & SF_CHANGELEVEL_NOCHECKBACK)) && count1 > 1 && count1 < count2 / 3 )
 					return;
 
 				//if( count1 <= 1 && count2 == 2 )
 				//	return;
 
-				if( m_coopData.fIsBack )
+				if( m_coopData.fIsBack && !(pev->spawnflags & SF_CHANGELEVEL_NOCHECKBACK) )
 					if( !COOP_ConfirmMenu( this, pActivator, count2, m_szMapName ) )
 						return;
 			}
@@ -2252,6 +2253,9 @@ void CBaseTrigger::TeleportTouch( CBaseEntity *pOther )
 
 	if( pOther->IsPlayer() )
 	{
+		Vector vel;
+		UTIL_RotateVector(pevToucher->velocity, pentTarget->v.angles-pevToucher->v_angle, vel);
+		pevToucher->velocity = vel;
 		pevToucher->v_angle = pentTarget->v.angles;
 	}
 
@@ -2941,3 +2945,96 @@ void CTriggerCamera::Move()
 	float fraction = 2 * gpGlobals->frametime;
 	pev->velocity = ( ( pev->movedir * pev->speed ) * fraction ) + ( pev->velocity * ( 1 - fraction ) );
 }
+
+
+class CChangeLevelActivator : public CBaseToggle
+{
+public:
+	void KeyValue( KeyValueData *pkvd );
+	void Spawn( void );
+	void EXPORT ActivatorUse( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value );
+	int ObjectCaps( void ) { return CBaseToggle::ObjectCaps() & ~FCAP_ACROSS_TRANSITION; }
+
+	virtual int Save( CSave &save );
+	virtual int Restore( CRestore &restore );
+
+	static TYPEDESCRIPTION m_SaveData[];
+
+	int m_iCount;
+	int m_iActivate;
+};
+
+TYPEDESCRIPTION	CChangeLevelActivator::m_SaveData[] =
+{
+	DEFINE_FIELD( CChangeLevelActivator, m_iCount, FIELD_INTEGER ),
+	DEFINE_FIELD( CChangeLevelActivator, m_iActivate, FIELD_INTEGER )
+};
+IMPLEMENT_SAVERESTORE( CChangeLevelActivator, CBaseToggle )
+
+
+void CChangeLevelActivator::Spawn()
+{
+	pev->solid = SOLID_NOT;
+	SetUse( &CChangeLevelActivator::ActivatorUse );
+}
+
+void CChangeLevelActivator::KeyValue( KeyValueData *pkvd )
+{
+	if( FStrEq( pkvd->szKeyName, "count" ) )
+	{
+		m_iCount = (int)atof( pkvd->szValue );
+		pkvd->fHandled = TRUE;
+	}
+	else if( FStrEq( pkvd->szKeyName, "activate" ) )
+	{
+		m_iActivate = (int)atof( pkvd->szValue );
+		pkvd->fHandled = TRUE;
+	}
+	else
+		CBaseToggle::KeyValue( pkvd );
+}
+
+void CChangeLevelActivator::ActivatorUse( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE useType, float value )
+{
+	m_iCount--;
+	edict_t *pentTarget = NULL;
+
+	if( m_iCount == 0 )
+	{
+		pentTarget = FIND_ENTITY_BY_TARGETNAME(NULL, STRING(pev->target));
+		if( FNullEnt( pentTarget ) )
+			return;
+
+		CBaseEntity *pTarget = CBaseEntity::Instance( pentTarget );
+		switch( m_iActivate )
+		{
+		case 0:
+			if( !(pTarget->pev->spawnflags & SF_CHANGELEVEL_BLOCK) )
+			{
+				pTarget->pev->spawnflags |= SF_CHANGELEVEL_BLOCK;
+				pTarget->pev->rendercolor = Vector(255,0,0);
+			}
+			break;
+		case 1:
+			if( pTarget->pev->spawnflags & SF_CHANGELEVEL_BLOCK )
+			{
+				pTarget->pev->spawnflags &= ~SF_CHANGELEVEL_BLOCK;
+				pTarget->pev->rendercolor = Vector(0,255,0);
+			}
+			break;
+		case 2:
+			if( pTarget->pev->spawnflags & SF_CHANGELEVEL_BLOCK )
+			{
+				pTarget->pev->spawnflags &= ~SF_CHANGELEVEL_BLOCK;
+				pTarget->pev->rendercolor = Vector(0,255,0);
+			}
+			if( !(pTarget->pev->spawnflags & SF_CHANGELEVEL_NOCHECKBACK) )
+			{
+				pTarget->pev->spawnflags |= SF_CHANGELEVEL_NOCHECKBACK;
+			}
+			break;
+		}
+	}
+}
+
+LINK_ENTITY_TO_CLASS( changelevel_activator, CChangeLevelActivator )
