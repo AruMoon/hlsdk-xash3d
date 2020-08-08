@@ -246,4 +246,6 @@ static pmtrace_t _pm_globalresult, _pm_globaltmp;
 #define PM_PlayerTraceEx(a,b,c,d) touchindex[MAX_PHYSENTS -1] = PM_PlayerTraceEx_wrap( a, b, c, d, pmove );pmove->touchindex[MAX_PHYSENTS -1] = _pm_globaltmp
 #endif
 
+int PM_Ignore( physent_t *pe );
+
 #endif//PM_DEFS_H

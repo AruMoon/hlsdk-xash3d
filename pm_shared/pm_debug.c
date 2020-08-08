@@ -305,7 +305,7 @@ void PM_ViewEntity( void )
 		end[i] = origin[i] + raydist * forward[i];
 	}
 
-	trace = pmove->PM_PlayerTrace( origin, end, PM_STUDIO_BOX, -1 );
+	trace = pmove->PM_PlayerTraceEx( origin, end, PM_STUDIO_BOX, PM_Ignore );
 
 	if (trace.ent > 0)  // Not the world
 	{

@@ -1521,7 +1521,7 @@ int AddToFullPack( struct entity_state_s *state, int e, edict_t *ent, edict_t *h
 		// semclip prediction
 		if( mp_semclip.value )
 		{
-			state->solid = SOLID_TRIGGER;
+			state->solid = SOLID_NOT;
 			if( !ent->v.velocity[0] && !ent->v.velocity[1]  )
 			if( ent != host )
 				state->movetype = MOVETYPE_NONE;
