@@ -827,7 +827,7 @@ bool COOP_PlayerDeath( CBasePlayer *pPlayer )
 		st_fSkipNext = false;
 		return false;
 	}
-	if( pPlayer->pev->health > 0 || pPlayer->m_ggm.iState != STATE_SPAWNED )
+	if( pPlayer->pev->health > 0 || pPlayer->m_ggm.iState != STATE_KILLED )
 		return true;
 //	if( pPlayer->gravgunmod_data.m_iMenuState == MENUSTATE_CHECKPOINT )
 	//	return true;
@@ -982,6 +982,7 @@ bool COOP_ClientCommand( edict_t *pEntity )
 		{
 			pPlayer->RemoveAllItems( TRUE );
 			UTIL_SpawnPlayer( pPlayer );
+			COOP_SetDefaultSpawnPosition( pPlayer );
 		}
 		return true;
 	}

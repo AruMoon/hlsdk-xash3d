@@ -80,6 +80,35 @@ struct GGMVote
 	int iConfirm;
 } g_Vote;
 
+const char *GGM_StateString(int state)
+{
+	switch(state)
+	{
+	case STATE_CONNECTED:
+		return "STATE_CONNECTED";
+		break;
+	case STATE_LOAD_FIX:
+		return "STATE_LOAD_FIX";
+		break;
+	case STATE_POINT_SELECT:
+		return "STATE_POINT_SELECT";
+	case STATE_SPAWNED:
+		return "STATE_SPAWNED";
+		break;
+	case STATE_SPECTATOR:
+		return "STATE_SPECTATOR";
+		break;
+	case STATE_SPECTATOR_BEGIN:
+		return "STATE_SPECTATOR_BEGIN";
+		break;
+	case STATE_UNINITIALIZED:
+		return "STATE_UNINITIALIZED";
+		break;
+	}
+	return "???";
+}
+
+
 /*
 =====================
 GGM_IsTempBanned
@@ -1748,6 +1777,8 @@ bool GGM_PlayerSpawn( CBasePlayer *pPlayer )
 		if( COOP_PlayerSpawn( pPlayer ) )
 			return true;
 
+	ALERT(at_console, "^1ggm player state: %s^7\n", GGM_StateString(pPlayer->m_ggm.iState));
+
 	if( pPlayer->m_ggm.iState == STATE_LOAD_FIX )
 		return true;
 	if( pPlayer->m_ggm.iState == STATE_UNINITIALIZED )
@@ -1756,7 +1787,9 @@ bool GGM_PlayerSpawn( CBasePlayer *pPlayer )
 		return true;
 	}
 
-	if( ( ( mp_coop.value || mp_spectator.value ) && pPlayer->m_ggm.iState == STATE_CONNECTED ) || !pPlayer->m_ggm.pState  )
+
+
+	if( ( mp_coop.value || mp_spectator.value ) && pPlayer->m_ggm.iState == STATE_CONNECTED || !pPlayer->m_ggm.pState  )
 	{
 		if( !pPlayer->m_ggm.pState )
 			GGM_ChatPrintf( pPlayer, "This nickname busy! Please login or change nickname\n" );
@@ -1766,6 +1799,15 @@ bool GGM_PlayerSpawn( CBasePlayer *pPlayer )
 		UTIL_BecomeSpectator( pPlayer );
 		if( !COOP_SetDefaultSpawnPosition( pPlayer ) )
 			g_pGameRules->GetPlayerSpawnSpot( pPlayer );
+		return true;
+	}
+
+
+	if( ( mp_coop.value || mp_spectator.value ) && pPlayer->m_ggm.iState == STATE_KILLED && g_CoopState.pCurrentMap && g_CoopState.pCurrentMap->p.rgCheckpoints[0].szDisplayName[0] )
+	{
+		pPlayer->m_ggm.iState = STATE_SPECTATOR;
+		pPlayer->RemoveAllItems( TRUE );
+		UTIL_BecomeSpectator( pPlayer );
 		return true;
 	}
 
