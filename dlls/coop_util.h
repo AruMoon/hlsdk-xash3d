@@ -18,6 +18,9 @@ extern cvar_t materials_txt;
 extern bool g_fSavedDuck;
 extern bool g_fPause;
 
+#define SF_CHANGELEVEL_USEONLY		0x0002
+#define SF_CHANGELEVEL_BLOCK        0x0004
+#define SF_CHANGELEVEL_NOCHECKBACK	0x0008
 
 // offset for all maps relative to current map
 struct COOPMapState

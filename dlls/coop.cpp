@@ -541,7 +541,10 @@ void COOP_MarkTriggers( void )
 		pTrigger->pev->effects &= ~EF_NODRAW;
 		pTrigger->pev->rendermode = kRenderTransColor;
 		pTrigger->pev->rendercolor = g_vecZero;
-		if( pData->fIsBack )
+
+		if( pTrigger->pev->spawnflags & SF_CHANGELEVEL_BLOCK)
+			pTrigger->pev->rendercolor.x = 255;
+		else if( pData->fIsBack )
 			pTrigger->pev->rendercolor.z = 255;
 		else
 			pTrigger->pev->rendercolor.y = 255;

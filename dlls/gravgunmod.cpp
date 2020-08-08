@@ -80,35 +80,6 @@ struct GGMVote
 	int iConfirm;
 } g_Vote;
 
-const char *GGM_StateString(int state)
-{
-	switch(state)
-	{
-	case STATE_CONNECTED:
-		return "STATE_CONNECTED";
-		break;
-	case STATE_LOAD_FIX:
-		return "STATE_LOAD_FIX";
-		break;
-	case STATE_POINT_SELECT:
-		return "STATE_POINT_SELECT";
-	case STATE_SPAWNED:
-		return "STATE_SPAWNED";
-		break;
-	case STATE_SPECTATOR:
-		return "STATE_SPECTATOR";
-		break;
-	case STATE_SPECTATOR_BEGIN:
-		return "STATE_SPECTATOR_BEGIN";
-		break;
-	case STATE_UNINITIALIZED:
-		return "STATE_UNINITIALIZED";
-		break;
-	}
-	return "???";
-}
-
-
 /*
 =====================
 GGM_IsTempBanned
@@ -855,7 +826,6 @@ void GGM_ClientPutinServer( edict_t *pEntity, CBasePlayer *pPlayer )
 		if( currate < 25000 )
 		{
 			g_engfuncs.pfnSetClientKeyValue( pPlayer->entindex(), g_engfuncs.pfnGetInfoKeyBuffer( pPlayer->edict() ), "rate", "25000" );
-			g_engfuncs.pfnSetClientKeyValue( pPlayer->entindex(), g_engfuncs.pfnGetInfoKeyBuffer( pPlayer->edict() ), "model", "gman" );
 		}
 	}
 }
@@ -1776,8 +1746,6 @@ bool GGM_PlayerSpawn( CBasePlayer *pPlayer )
 	if( mp_coop.value )
 		if( COOP_PlayerSpawn( pPlayer ) )
 			return true;
-
-	ALERT(at_console, "^1ggm player state: %s^7\n", GGM_StateString(pPlayer->m_ggm.iState));
 
 	if( pPlayer->m_ggm.iState == STATE_LOAD_FIX )
 		return true;

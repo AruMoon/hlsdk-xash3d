@@ -1316,10 +1316,6 @@ void CFireAndDie::Think( void )
 	UTIL_Remove( this );
 }
 
-#define SF_CHANGELEVEL_USEONLY		0x0002
-#define SF_CHANGELEVEL_BLOCK        0x0004
-#define SF_CHANGELEVEL_NOCHECKBACK	0x0008
-
 class CChangeLevel : public CBaseTrigger
 {
 public:
