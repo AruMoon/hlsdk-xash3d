@@ -2234,8 +2234,8 @@ void CBaseTrigger::TeleportTouch( CBaseEntity *pOther )
 	   return;	
 
 	Vector tmp = VARS( pentTarget )->origin;
-
-	UTIL_CleanSpawnPoint( tmp, 150 );
+	if( !mp_coop.value )
+		UTIL_CleanSpawnPoint( tmp, 150 );
 	if( pOther->IsPlayer() )
 	{
 		tmp.z -= pOther->pev->mins.z;// make origin adjustments in case the teleportee is a player. (origin in center, not at feet)

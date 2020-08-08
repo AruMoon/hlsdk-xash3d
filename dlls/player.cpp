@@ -2814,11 +2814,7 @@ edict_t *EntSelectSpawnPoint( CBaseEntity *pPlayer )
 		// we haven't found a place to spawn yet,  so kill any guy at the first spawn point and spawn there
 		if( !FNullEnt( pSpot ) )
 		{
-			if( mp_coop.value )
-			{
-				UTIL_CleanSpawnPoint( pSpot->pev->origin, 128 );
-			}
-			else
+			if( !mp_coop.value )
 			{
 				CBaseEntity *ent = NULL;
 				while( ( ent = UTIL_FindEntityInSphere( ent, pSpot->pev->origin, 128 ) ) != NULL )
