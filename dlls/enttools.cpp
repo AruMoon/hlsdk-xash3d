@@ -4,6 +4,7 @@
 #include "game.h"
 #include "player.h"
 #include "saverestore.h"
+#include "admin.h"
 #define Ent_IsValidEdict( e )	( e && !e->free )
 
 // stop any actions with players
@@ -64,7 +65,7 @@ void Ent_ClearBlacklist_f( void )
 
 bool Ent_CheckFire( edict_t *player, edict_t *ent, const char *command )
 {
-	if( !mp_enttools_players.value && ENTINDEX( ent ) < gpGlobals->maxClients + 1 )
+	if( (!mp_enttools_players.value && !ADMIN_IsAdmin(player)) && ENTINDEX( ent ) < gpGlobals->maxClients + 1 )
 		return false;
 
 	CBaseEntity *pEntity = CBaseEntity::Instance( ent );
@@ -1119,7 +1120,7 @@ bool Ent_ProcessClientCommand( edict_t *player )
 {
 	ucmd_t	*u;
 
-	if( !mp_enttools_enable.value )
+	if( !mp_enttools_enable.value && !ADMIN_IsAdmin(player))
 		return false;
 
 	CBaseEntity *pl = CBaseEntity::Instance( player );

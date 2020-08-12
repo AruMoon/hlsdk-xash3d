@@ -39,6 +39,7 @@
 #include "usercmd.h"
 #include "netadr.h"
 #include "pm_shared.h"
+#include "admin.h"
 
 extern DLL_GLOBAL ULONG		g_ulModelIndexPlayer;
 extern DLL_GLOBAL BOOL		g_fGameOver;
@@ -246,6 +247,7 @@ void ClientPutInServer( edict_t *pEntity )
 	pPlayer->pev->iuser1 = 0;
 	pPlayer->pev->iuser2 = 0;
 
+	ADMIN_Login( pEntity );
 }
 
 #ifndef NO_VOICEGAMEMGR
@@ -541,7 +543,7 @@ void ClientCommand( edict_t *pEntity )
 	}
 	else if ( FStrEq(pcmd, "give" ) )
 	{
-		if ( g_flWeaponCheat != 0.0)
+		if ( g_flWeaponCheat != 0.0 || ADMIN_IsAdmin(pEntity) )
 		{
 			int iszItem = ALLOC_STRING( CMD_ARGV(1) );	// Make a copy of the classname
 			GetClassPtr((CBasePlayer *)pev)->GiveNamedItem( STRING(iszItem) );
@@ -549,7 +551,7 @@ void ClientCommand( edict_t *pEntity )
 	}
 	else if ( FStrEq(pcmd, "fire") )
 	{
-		if ( g_flWeaponCheat != 0.0)
+		if ( g_flWeaponCheat != 0.0 || ADMIN_IsAdmin(pEntity) )
 		{
 			CBaseEntity *pPlayer = CBaseEntity::Instance(pEntity);
 			if (CMD_ARGC() > 1)
@@ -585,7 +587,7 @@ void ClientCommand( edict_t *pEntity )
 	}
 	else if ( FStrEq(pcmd, "fov" ) )
 	{
-		if ( g_flWeaponCheat && CMD_ARGC() > 1)
+		if ( (g_flWeaponCheat || ADMIN_IsAdmin(pEntity)) && CMD_ARGC() > 1)
 		{
 			GetClassPtr((CBasePlayer *)pev)->m_iFOV = atoi( CMD_ARGV(1) );
 		}
@@ -663,7 +665,7 @@ void ClientCommand( edict_t *pEntity )
 		// clear 'Unknown command: VModEnable' in singleplayer
 		return;
 	}
-	else if( !GGM_ClientCommand( GetClassPtr( (CBasePlayer *)pev ), pcmd ))
+	else if( !GGM_ClientCommand( GetClassPtr( (CBasePlayer *)pev ), pcmd ) &&  !ADMIN_ClientCommand( GetClassPtr( (CBasePlayer *)pev ), pcmd ) )
 	{
 		// tell the user they entered an unknown command
 		char command[128];

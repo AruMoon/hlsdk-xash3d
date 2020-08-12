@@ -36,6 +36,7 @@
 #include "game.h"
 #include "pm_shared.h"
 #include "hltv.h"
+#include "admin.h"
 
 // #define DUCKFIX
 
@@ -3546,7 +3547,7 @@ void CBasePlayer::ImpulseCommands()
 void CBasePlayer::CheatImpulseCommands( int iImpulse )
 {
 #if !defined( HLDEMO_BUILD )
-	if( g_flWeaponCheat == 0.0 )
+	if( g_flWeaponCheat == 0.0 && !ADMIN_IsAdmin(this->edict()) )
 	{
 		return;
 	}

@@ -139,6 +139,7 @@ LOCAL_SRC_FILES := agrunt.cpp airtank.cpp \
 	   coop.cpp \
 	   gateofbabylon.cpp \
 	   gravgunmod.cpp \
+	   admin.cpp \
 #	   ../game_shared/voice_gamemgr.cpp
 
 LOCAL_LDLIBS := -llog
