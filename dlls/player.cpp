@@ -4814,6 +4814,7 @@ void CStripWeapons::Use( CBaseEntity *pActivator, CBaseEntity *pCaller, USE_TYPE
 				((CBasePlayer*)ent)->RemoveAllItems( FALSE );
 			}
 		}
+		GGM_ClearLists();
 	}
 	else if( pPlayer )
 		pPlayer->RemoveAllItems( FALSE );
