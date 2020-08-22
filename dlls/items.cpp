@@ -399,9 +399,6 @@ class CItemLongJump : public CItem
 		if( ( pPlayer->pev->weapons & ( 1 << WEAPON_SUIT ) ) )
 		{
 			pPlayer->m_fLongJump = TRUE;// player now has longjump module
-			if( mp_coop.value )
-				g_CoopState.p.fLongJump = TRUE;
-
 			g_engfuncs.pfnSetPhysicsKeyValue( pPlayer->edict(), "slj", "1" );
 
 			MESSAGE_BEGIN( MSG_ONE, gmsgItemPickup, NULL, pPlayer->pev );

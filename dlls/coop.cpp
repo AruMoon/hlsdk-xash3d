@@ -500,7 +500,21 @@ void COOP_AddDefaultWeapon( const char *classname )
 		return;
 
 	if( !strcmp( classname, "item_longjump") )
+	{
+		g_CoopState.p.fLongJump = TRUE;
+
+		for( int i = 1; i <= gpGlobals->maxClients; i++ )
+		{
+			CBasePlayer *plr = (CBasePlayer*)UTIL_PlayerByIndex( i );
+			if( plr && plr->pev->modelindex )
+			{
+				plr->m_fLongJump = TRUE;
+				g_engfuncs.pfnSetPhysicsKeyValue( plr->edict(), "slj", "1" );
+			}
+		}
+
 		return;
+	}
 
 	for(i = 0; i < g_CoopState.p.iWeaponCount;i++)
 		if(!strcmp(g_CoopState.p.rgszWeapons[i], classname))
