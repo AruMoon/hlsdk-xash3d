@@ -38,6 +38,7 @@ else()
 endif()
 
 set (SVDLL_SOURCES
+	admin.cpp
 	agrunt.cpp
 	airtank.cpp
 	aflock.cpp
