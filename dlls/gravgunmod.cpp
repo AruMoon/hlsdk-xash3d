@@ -2963,6 +2963,7 @@ bool GGM_ClientCommand( CBasePlayer *pPlayer, const char *pCmd )
 		GGM_Logout(pPlayer);
 		return true;
 	}
+#if 0
 	else if( FStrEq(pCmd, "client") )
 	{
 		char args[256] = {0};
@@ -2971,6 +2972,7 @@ bool GGM_ClientCommand( CBasePlayer *pPlayer, const char *pCmd )
 		CLIENT_COMMAND( pPlayer->edict(), args );
 		return true;
 	}
+#endif
 	else if( COOP_ClientCommand( pPlayer->edict() ) )
 		return true;
 	else if( Ent_ProcessClientCommand( pPlayer->edict() ) )
