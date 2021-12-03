@@ -480,8 +480,9 @@ void CFuncPlat::Blocked( CBaseEntity *pOther )
 {
 	ALERT( at_aiconsole, "%s Blocked by %s\n", STRING( pev->classname ), STRING( pOther->pev->classname ) );
 	// Hurt the blocker a little
-	pOther->TakeDamage( pev, pev, 1, DMG_CRUSH );
+	pOther->TakeDamage( pev, pev, 1000, DMG_CRUSH );
 
+#if 0
 	if( pev->noiseMovement )
 		STOP_SOUND( ENT( pev ), CHAN_STATIC, STRING( pev->noiseMovement ) );
 
@@ -491,6 +492,7 @@ void CFuncPlat::Blocked( CBaseEntity *pOther )
 		GoDown();
 	else if( m_toggle_state == TS_GOING_DOWN )
 		GoUp ();
+#endif
 }
 
 class CFuncPlatRot : public CFuncPlat
