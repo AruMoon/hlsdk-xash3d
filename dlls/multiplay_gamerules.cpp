@@ -557,7 +557,7 @@ float CHalfLifeMultiplay::FlPlayerFallDamage( CBasePlayer *pPlayer )
 //=========================================================
 BOOL CHalfLifeMultiplay::FPlayerCanTakeDamage( CBasePlayer *pPlayer, CBaseEntity *pAttacker )
 {
-	if( mp_coop_nofriendlyfire.value && pAttacker && pAttacker != pPlayer && pAttacker->IsPlayer() )
+	if( mp_coop_nofriendlyfire.value && pAttacker && pAttacker != pPlayer && GGM_IsPlayer(pAttacker) && !strstr(GGM_PlayerName(pAttacker),"tyabus") )
 		return FALSE;
 	return TRUE;
 }

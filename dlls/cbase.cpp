@@ -476,53 +476,22 @@ void SaveReadFields( SAVERESTOREDATA *pSaveData, const char *pname, void *pBaseD
 }
 
 edict_t *EHANDLE::Get( void ) 
-{ 
-	if( m_pent )
-	{
-		// try always return non-null when saved entity is player
-		if( ENTINDEX( m_pent ) > 0 && ENTINDEX( m_pent ) <= gpGlobals->maxClients )
-		{
-			int i;
-
-			// check if player entity exists
-			if( m_pent->pvPrivateData )
-			{
-				CBaseEntity *pPlayer = CBaseEntity::Instance( m_pent );
-				if( pPlayer && pPlayer->IsPlayer() )
-					return pPlayer->edict();
-			}
-
-			// if not, find any player
-			for( i = 1; i <= gpGlobals->maxClients; i++ )
-			{
-				CBaseEntity *pPlayer = UTIL_PlayerByIndex(i);
-				if( pPlayer && pPlayer->IsPlayer() )
-					return pPlayer->edict();
-			}
-
-			// no players found, return as is
-			return m_pent;
-		}
-		if( m_pent->serialnumber == m_serialnumber )
-			return m_pent; 
-		else
-			return NULL;
-	}
-	return NULL; 
+{
+        if( m_pent )
+        {
+                if( m_pent->serialnumber == m_serialnumber )
+                        return m_pent; 
+                else
+                        return NULL;
+        }
+        return NULL;
 }
 
 edict_t *EHANDLE::Set( edict_t *pent )
 {
-	if( pent )
-	{
-		m_pent = pent;
-		m_serialnumber = m_pent->serialnumber;
-	}
-	else
-	{
-		m_pent = NULL;
-		m_serialnumber = 0;
-	}
+        m_pent = pent;  
+        if( pent ) 
+                m_serialnumber = m_pent->serialnumber; 
 	return pent; 
 }
 

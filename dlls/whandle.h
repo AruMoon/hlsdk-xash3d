@@ -1,7 +1,7 @@
 #ifndef WHANDLE_H
 #define WHANDLE_H
 
-#ifndef CLIENT_DLL
+#if 0
 
 class CBasePlayerItem;
 

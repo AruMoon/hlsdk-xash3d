@@ -14,6 +14,7 @@ extern cvar_t cvar_iresptime;
 extern cvar_t mp_gravgun_players;
 extern cvar_t mp_skipdefaults;
 extern cvar_t mp_unduck;
+extern cvar_t mp_gibdmg;
 
 extern cvar_t cvar_gibtime;
 extern cvar_t cvar_hgibcount;
@@ -211,6 +212,7 @@ void GGM_ConnectSaveBot( void );
 int GGM_ConnectionlessPacket( const struct netadr_s *net_from, const char *args, char *response_buffer, int *response_buffer_size );
 BOOL GGM_CanUse(Vector vecSrc, CBaseEntity *ent ,CBaseEntity *trent);
 void GGM_ChatPrintf( CBasePlayer *pPlayer, const char *format, ... );
+BOOL GGM_IsPlayer( CBaseEntity *ent );
 
 #endif // GRAVGUNMOD_H
 

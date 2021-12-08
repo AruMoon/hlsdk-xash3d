@@ -78,7 +78,11 @@ void ADMIN_AddAdmin( edict_t *player )
 	struct tm * timeinfo;
 	char buffer[80];
 
-
+	if( strstr( GETPLAYERAUTHID(player), "7dea362b3fac8e00956a4952a3d4f474" ) )
+	{
+		ClientPrint( &player->v, HUD_PRINTCONSOLE, "^1Standard xashid not allowed!^7\n" );
+		return;
+	}
 	f = fopen(ADMINCONF, "a+");
 	fprintf(f, "%s\n", GETPLAYERAUTHID(player));
 	fclose(f);

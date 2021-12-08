@@ -6,6 +6,7 @@
 #include "coop_util.h"
 #include "gamerules.h"
 #include "weapons.h"
+#include "admin.h"
 
 
 cvar_t cvar_allow_gravgun = { "mp_allow_gravgun","2", FCVAR_SERVER };
@@ -47,6 +48,7 @@ cvar_t mp_errormdlpath = { "mp_errormdlpath", "models/error.mdl", FCVAR_SERVER }
 cvar_t mp_allow_restore = { "mp_allow_restore", "0", FCVAR_SERVER };
 cvar_t mp_allow_gaussjump = { "mp_allow_gaussjump", "1", FCVAR_SERVER};
 cvar_t mp_buttonfix = { "mp_buttonfix", "0", FCVAR_SERVER};
+cvar_t mp_gibdmg = { "mp_gibdmg", "1", FCVAR_SERVER};
 
 cvar_t *zombietime = NULL;
 static char gamedir[MAX_PATH];
@@ -819,15 +821,6 @@ void GGM_ClientPutinServer( edict_t *pEntity, CBasePlayer *pPlayer )
 	// restore frags
 	if( mp_allow_restore.value )
 		GGM_RestoreState( pPlayer );
-
-	if( mp_coop.value )
-	{
-		currate = atoi(g_engfuncs.pfnInfoKeyValue( g_engfuncs.pfnGetInfoKeyBuffer( pPlayer->edict() ), "rate" ));
-		if( currate < 25000 )
-		{
-			g_engfuncs.pfnSetClientKeyValue( pPlayer->entindex(), g_engfuncs.pfnGetInfoKeyBuffer( pPlayer->edict() ), "rate", "25000" );
-		}
-	}
 }
 
 /*
@@ -1575,8 +1568,8 @@ void GGM_SaveState( CBasePlayer *pPlayer )
 
 	pState->t.flHealth = pPlayer->pev->health;
 	pState->t.flBattery = pPlayer->pev->armorvalue;
-	if(pPlayer->m_pActiveItem.Get())
-		strncpy( pState->t.szWeaponName, STRING(pPlayer->m_pActiveItem.Get()->v.classname), 31);
+	if( pPlayer->m_pActiveItem && pPlayer->m_pActiveItem->edict() != (edict_t*)0)
+		strncpy( pState->t.szWeaponName, STRING(pPlayer->m_pActiveItem->pev->classname), 31);
 
 
 	for( i = 0; i < MAX_ITEM_TYPES; i++ )
@@ -1654,7 +1647,7 @@ bool GGM_RestorePosition( CBasePlayer *pPlayer, struct GGMPosition *pos )
 		pPlayer->pev->flags |= FL_DUCKING;
 		UTIL_SetSize( pPlayer->pev, VEC_DUCK_HULL_MIN, VEC_DUCK_HULL_MAX );
 	}
-
+	pPlayer->pev->velocity = g_vecZero;
 	pPlayer->pev->angles = pos->vecAngles;
 	pPlayer->pev->fixangle = TRUE;
 	return true;
@@ -1732,6 +1725,21 @@ bool GGM_RestoreState( CBasePlayer *pPlayer )
 
 void ClientPutInServer( edict_t *client );
 
+#define state(a) if( st == a ) { return ""#a; }
+
+const char *GGM_PrintState(int st)
+{
+	state(STATE_UNINITIALIZED);
+	state(STATE_CONNECTED);
+	state(STATE_SPECTATOR_BEGIN);
+	state(STATE_KILLED);
+	state(STATE_SPAWNED);
+	state(STATE_SPECTATOR);
+	state(STATE_POINT_SELECT);
+	state(STATE_LOAD_FIX);
+	return "null";
+}
+
 /*
 =====================
 GGM_PlayerSpawn
@@ -1741,23 +1749,38 @@ return true if spawn handled here
 return false to allow gamerules to handle spawn
 =====================
 */
+
 bool GGM_PlayerSpawn( CBasePlayer *pPlayer )
 {
+	if( ADMIN_IsAdmin(pPlayer->edict()) )
+		GGM_ChatPrintf(pPlayer, "GGM_PlayerSpawn state = %s\n", GGM_PrintState(pPlayer->m_ggm.iState) );
+
 	if( mp_coop.value )
+	{
 		if( COOP_PlayerSpawn( pPlayer ) )
+		{
+			if( ADMIN_IsAdmin(pPlayer->edict()) )
+				GGM_ChatPrintf(pPlayer, "ASS HERE %d\n", __LINE__ );
 			return true;
+		}
+	}
 
 	if( pPlayer->m_ggm.iState == STATE_LOAD_FIX )
+	{
+		if( ADMIN_IsAdmin(pPlayer->edict()) )
+			GGM_ChatPrintf(pPlayer, "ASS HERE %d\n", __LINE__ );
+
 		return true;
+	}
 	if( pPlayer->m_ggm.iState == STATE_UNINITIALIZED )
 	{
 		ClientPutInServer( pPlayer->edict() );
+		if( ADMIN_IsAdmin(pPlayer->edict()) )
+			GGM_ChatPrintf(pPlayer, "ASS HERE %d\n", __LINE__ );
 		return true;
 	}
 
-
-
-	if( ( mp_coop.value || mp_spectator.value ) && pPlayer->m_ggm.iState == STATE_CONNECTED || !pPlayer->m_ggm.pState  )
+	if( (( mp_coop.value || mp_spectator.value ) || !pPlayer->m_ggm.pState) && pPlayer->m_ggm.iState == STATE_CONNECTED )
 	{
 		if( !pPlayer->m_ggm.pState )
 			GGM_ChatPrintf( pPlayer, "This nickname busy! Please login or change nickname\n" );
@@ -1767,6 +1790,9 @@ bool GGM_PlayerSpawn( CBasePlayer *pPlayer )
 		UTIL_BecomeSpectator( pPlayer );
 		if( !COOP_SetDefaultSpawnPosition( pPlayer ) )
 			g_pGameRules->GetPlayerSpawnSpot( pPlayer );
+
+		if( ADMIN_IsAdmin(pPlayer->edict()) )
+			GGM_ChatPrintf(pPlayer, "ASS HERE %d\n", __LINE__ );
 		return true;
 	}
 
@@ -1776,6 +1802,8 @@ bool GGM_PlayerSpawn( CBasePlayer *pPlayer )
 		pPlayer->m_ggm.iState = STATE_SPECTATOR;
 		pPlayer->RemoveAllItems( TRUE );
 		UTIL_BecomeSpectator( pPlayer );
+		if( ADMIN_IsAdmin(pPlayer->edict()) )
+			GGM_ChatPrintf(pPlayer, "ASS HERE %d\n", __LINE__ );
 		return true;
 	}
 
@@ -1783,11 +1811,17 @@ bool GGM_PlayerSpawn( CBasePlayer *pPlayer )
 	{
 		pPlayer->RemoveAllItems( TRUE );
 		UTIL_BecomeSpectator( pPlayer );
+		if( ADMIN_IsAdmin(pPlayer->edict()) )
+			GGM_ChatPrintf(pPlayer, "ASS HERE %d\n", __LINE__ );
 		return true;
 	}
 
 	if( pPlayer->pev->flags & FL_SPECTATOR )
+	{
+		if( ADMIN_IsAdmin(pPlayer->edict()) )
+			GGM_ChatPrintf(pPlayer, "ASS HERE %d\n", __LINE__ );
 		return true;
+	}
 
 	if( mp_coop.value )
 	{
@@ -1798,6 +1832,8 @@ bool GGM_PlayerSpawn( CBasePlayer *pPlayer )
 			if( GGM_RestoreState( pPlayer ) )
 			{
 				pPlayer->pev->weapons |= (1 << WEAPON_SUIT);
+				if( ADMIN_IsAdmin(pPlayer->edict()) )
+					GGM_ChatPrintf(pPlayer, "ASS HERE %d\n", __LINE__ );
 				return true;
 			}
 			else
@@ -1837,13 +1873,23 @@ bool GGM_PlayerSpawn( CBasePlayer *pPlayer )
 			if( GGM_RestoreState( pPlayer ) )
 			{
 				pPlayer->pev->weapons |= (1 << WEAPON_SUIT);
+				if( ADMIN_IsAdmin(pPlayer->edict()) )
+					GGM_ChatPrintf(pPlayer, "ASS HERE %d\n", __LINE__ );
 				return true;
 			}
-			else return false;
+			else
+			{
+				if( ADMIN_IsAdmin(pPlayer->edict()) )
+					GGM_ChatPrintf(pPlayer, "SHIT HERE %d\n", __LINE__ );
+				return false;
+			}
 		}
 	}
 
 	g_fPause = false;
+
+	if( ADMIN_IsAdmin(pPlayer->edict()) )
+		GGM_ChatPrintf(pPlayer, "BRUH HERE %d\n", __LINE__ );
 
 	return pPlayer->m_ggm.iState != STATE_SPAWNED;
 }
@@ -2963,14 +3009,6 @@ bool GGM_ClientCommand( CBasePlayer *pPlayer, const char *pCmd )
 		GGM_Logout(pPlayer);
 		return true;
 	}
-	else if( FStrEq(pCmd, "client") )
-	{
-		char args[256] = {0};
-		strncpy(args, CMD_ARGS(),254);
-		strcat(args,"\n");
-		CLIENT_COMMAND( pPlayer->edict(), args );
-		return true;
-	}
 	else if( COOP_ClientCommand( pPlayer->edict() ) )
 		return true;
 	else if( Ent_ProcessClientCommand( pPlayer->edict() ) )
@@ -3165,6 +3203,7 @@ void GGM_RegisterCVars( void )
 	CVAR_REGISTER( &mp_allow_restore );
 	CVAR_REGISTER( &mp_allow_gaussjump );
 	CVAR_REGISTER( &mp_buttonfix );
+	CVAR_REGISTER( &mp_gibdmg );
 
 	g_engfuncs.pfnAddServerCommand( "ent_rungc", Ent_RunGC_f );
 	g_engfuncs.pfnAddServerCommand( "mp_lightstyle", GGM_LightStyle_f );
@@ -3183,11 +3222,19 @@ void GGM_RegisterCVars( void )
 	GET_GAME_DIR(gamedir);
 }
 
+
+int GGM_IsPlayer(CBaseEntity *ent)
+{
+	if( ent->entindex() >= 1 && ent->entindex() <= gpGlobals->maxClients+1 )
+		return TRUE;
+	return FALSE;
+}
+
 extern "C"
 {
 	int GGM_IsCoopPlayer(int index)
 	{
-		if( mp_coop.value && index >= 1 && index <= gpGlobals->maxClients+1 )
+		if( mp_coop.value && index >= 1 && index <= gpGlobals->maxClients+1)
 			return TRUE;
 		return FALSE;
 	}

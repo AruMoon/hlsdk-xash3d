@@ -539,7 +539,7 @@ TYPEDESCRIPTION CGateOfBabylonSpawner::m_SaveData[] =
 	DEFINE_FIELD( CGateOfBabylonSpawner, m_vecOffset, FIELD_VECTOR ),
 	DEFINE_FIELD( CGateOfBabylonSpawner, m_flNextNPThrow, FIELD_TIME ),
 	DEFINE_FIELD( CGateOfBabylonSpawner, m_flLastTimeAnim, FIELD_TIME ),
-	DEFINE_FIELD( CGateOfBabylonSpawner, m_pGates, FIELD_EHANDLE )
+	DEFINE_FIELD( CGateOfBabylonSpawner, m_pGates, FIELD_CLASSPTR )
 };
 
 IMPLEMENT_SAVERESTORE( CGateOfBabylonSpawner, CBaseEntity );

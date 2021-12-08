@@ -857,9 +857,6 @@ void CTalkMonster::Touch( CBaseEntity *pOther )
 			return;
 
 		// Heuristic for determining if the player is pushing me away
-        if(mp_coop.value)
-            return;
-
 		float speed = fabs( pOther->pev->velocity.x ) + fabs( pOther->pev->velocity.y );
 		if( speed > 50 )
 		{

@@ -1141,7 +1141,7 @@ void CFuncTrackTrain::Next( void )
 	}
 
 	// prevent train without players going to other map
-	if( mp_coop.value && pev->globalname && (STRING( pev->globalname ))[0] )
+	if( mp_coop.value && pev->globalname && (STRING( pev->globalname ))[0] && !( pev->spawnflags & SF_TRACKTRAIN_NOSTOP ) )
 	{
 		CBaseEntity *pList;
 		Vector mins = pev->absmin;

@@ -692,6 +692,13 @@ it gets sent into the rest of the engine.
 */
 void ClientUserInfoChanged( edict_t *pEntity, char *infobuffer )
 {
+	if( mp_coop.value )
+	{
+		int currate = atoi(g_engfuncs.pfnInfoKeyValue( g_engfuncs.pfnGetInfoKeyBuffer( pEntity ), "rate" ));
+		if( currate < 20000 )
+			g_engfuncs.pfnSetClientKeyValue( ENTINDEX(pEntity), g_engfuncs.pfnGetInfoKeyBuffer( pEntity ), "rate", "20000" );
+	}
+
 	// Is the client spawned yet?
 	if ( !pEntity->pvPrivateData )
 		return;

@@ -609,7 +609,7 @@ void CBaseMonster::Killed( entvars_t *pevAttacker, int iGib )
 		int classs = Classify();
 		if( !mp_coop_nofriendlyfire.value && ( classs == CLASS_HUMAN_PASSIVE || classs == CLASS_PLAYER_ALLY ) )
 		{
-			if( activator && activator->IsPlayer() )
+			if( activator && GGM_IsPlayer(activator) )
 			{
 				activator->pev->frags -= 30;
 				activator->AddPoints( 0, true );
@@ -625,7 +625,7 @@ void CBaseMonster::Killed( entvars_t *pevAttacker, int iGib )
 			if( classs == CLASS_ALIEN_PREDATOR )
 				points = 3;
 
-			if( activator && activator->IsPlayer() )
+			if( activator && GGM_IsPlayer(activator) )
 				activator->AddPoints( 1, true );
 		}
 	}
@@ -760,7 +760,7 @@ void CGib::BounceGibTouch( CBaseEntity *pOther )
 			entvars_t *pevOwner = pev;
 			if( pev->owner)
 				pevOwner = &pev->owner->v;
-			if(pevOwner)
+			if(pevOwner && mp_gibdmg.value)
 			{
 				float dmg = 10 + pev->velocity.Length() / 50;
 				TraceResult tr = UTIL_GetGlobalTrace();
@@ -896,7 +896,7 @@ int CBaseMonster::TakeDamage( entvars_t *pevInflictor, entvars_t *pevAttacker, f
 	CBaseEntity *activator = CBaseEntity::Instance( pevAttacker );
 	if( mp_coop_nofriendlyfire.value )
 	{
-		if( activator && activator->IsPlayer() )
+		if( activator && GGM_IsPlayer(activator) )
 		{
 			int classs = Classify();
 			if( classs == CLASS_HUMAN_PASSIVE || classs == CLASS_PLAYER_ALLY )

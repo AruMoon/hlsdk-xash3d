@@ -287,7 +287,7 @@ public:
 #ifdef _DEBUG
 	void FunctionCheck( void *pFunction, char *name ) 
 	{ 
-		if( pFunction && !NAME_FOR_FUNCTION( pFunction ) )
+		if( pFunction && !NAME_FOR_FUNCTION( (size_t)pFunction ) )
 			ALERT( at_error, "No EXPORT: %s:%s (%08lx)\n", STRING( pev->classname ), name, (size_t)pFunction );
 	}
 

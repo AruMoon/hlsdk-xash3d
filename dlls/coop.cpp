@@ -441,10 +441,10 @@ void UTIL_SpawnPlayer( CBasePlayer *pPlayer )
 	if( pPlayer->m_ggm.iState == STATE_LOAD_FIX )
 		return;
 
-	if( !pPlayer->m_ggm.pState )
-		return;
+//	if( !pPlayer->m_ggm.pState )
+//		return;
 
-	if( pPlayer->m_ggm.iState == STATE_SPECTATOR || pPlayer->m_ggm.iState == STATE_KILLED)
+	if( pPlayer->m_ggm.iState != STATE_SPAWNED)
 		pPlayer->m_ggm.iState = STATE_SPAWNED;
 
 	pPlayer->m_iRespawnFrames = 0;
