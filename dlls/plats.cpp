@@ -1840,8 +1840,8 @@ void CFuncTrackChange::UpdateTrain( Vector &dest )
 
 void CFuncTrackChange::GoDown( void )
 {
-	if( m_code == TRAIN_BLOCKING )
-		return;
+	// if( m_code == TRAIN_BLOCKING )
+	//	return;
 
 	// HitBottom may get called during CFuncPlat::GoDown(), so set up for that
 	// before you call GoDown()
@@ -1875,8 +1875,8 @@ void CFuncTrackChange::GoDown( void )
 //
 void CFuncTrackChange::GoUp( void )
 {
-	if( m_code == TRAIN_BLOCKING )
-		return;
+	// if( m_code == TRAIN_BLOCKING )
+	// 	return;
 
 	// HitTop may get called during CFuncPlat::GoUp(), so set up for that
 	// before you call GoUp();
